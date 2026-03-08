@@ -6,8 +6,8 @@ Auth API - 认证相关接口
 from ninja import Header, Router
 from pydantic import BaseModel
 
-from src.application.dto.auth_dto import RefreshTokenDTO, TokenResponseDTO
-from src.application.dto.user_dto import UserLoginDTO
+from src.application.dto.auth import RefreshTokenDTO, TokenResponseDTO
+from src.application.dto.user import UserLoginDTO
 from src.application.services.auth_service import auth_service
 
 router = Router(tags=["认证"])

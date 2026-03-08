@@ -6,7 +6,7 @@ User Service - 用户业务逻辑处理
 import hashlib
 import uuid
 
-from src.application.dto.user_dto import UserCreateDTO, UserResponseDTO, UserUpdateDTO
+from src.application.dto.user import UserCreateDTO, UserResponseDTO, UserUpdateDTO
 from src.infrastructure.cache.cache_manager import cache_manager
 from src.infrastructure.persistence.models.user_models import User
 from src.infrastructure.repositories.user_repo_impl import UserRepositoryImpl

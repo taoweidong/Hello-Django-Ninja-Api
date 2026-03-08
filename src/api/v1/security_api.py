@@ -6,7 +6,7 @@ Security API - 安全防护相关接口
 from ninja import Router
 from pydantic import BaseModel
 
-from src.application.dto.security_dto import (
+from src.application.dto.security import (
     IPBlacklistDTO,
     IPBlacklistResponseDTO,
     IPWhitelistDTO,

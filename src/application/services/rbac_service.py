@@ -5,7 +5,7 @@ RBAC Service - 角色权限业务逻辑处理
 
 import uuid
 
-from src.application.dto.rbac_dto import (
+from src.application.dto.rbac import (
     AssignRoleDTO,
     PermissionResponseDTO,
     RoleCreateDTO,

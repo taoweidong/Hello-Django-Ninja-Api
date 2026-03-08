@@ -7,8 +7,8 @@ from datetime import datetime
 
 from django.utils import timezone
 
-from src.application.dto.auth_dto import RefreshTokenDTO, TokenResponseDTO
-from src.application.dto.user_dto import UserLoginDTO
+from src.application.dto.auth import RefreshTokenDTO, TokenResponseDTO
+from src.application.dto.user import UserLoginDTO
 from src.infrastructure.auth_jwt.jwt_manager import jwt_manager
 from src.infrastructure.auth_jwt.token_validator import token_validator
 from src.infrastructure.cache.cache_manager import cache_manager

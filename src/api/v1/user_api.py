@@ -6,7 +6,7 @@ User API - 用户管理相关接口
 from ninja import Query, Router
 from pydantic import BaseModel
 
-from src.application.dto.user_dto import (
+from src.application.dto.user import (
     ChangePasswordDTO,
     UserCreateDTO,
     UserResponseDTO,

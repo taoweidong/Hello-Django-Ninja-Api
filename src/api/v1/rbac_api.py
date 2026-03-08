@@ -6,7 +6,7 @@ RBAC API - 角色权限管理相关接口
 from ninja import Query, Router
 from pydantic import BaseModel
 
-from src.application.dto.rbac_dto import (
+from src.application.dto.rbac import (
     AssignRoleDTO,
     PermissionResponseDTO,
     RoleCreateDTO,
