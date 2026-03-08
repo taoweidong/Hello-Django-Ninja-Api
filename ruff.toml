@@ -1,0 +1,53 @@
+# Ruff 配置文件
+# 快速 Python 代码检查和格式化工具
+
+line-length = 100
+target-version = "py310"
+
+[lint]
+# 启用的规则集
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort (导入排序)
+    "N",      # pep8-naming (命名约定)
+    "UP",     # pyupgrade (语法升级)
+    "B",      # flake8-bugbear (常见错误)
+    "C4",     # flake8-comprehensions (推导式优化)
+    "SIM",    # flake8-simplify (代码简化)
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib (使用 pathlib)
+    "PERF",   # flake8-perf (性能优化)
+]
+
+# 忽略的规则
+ignore = [
+    "E501",   # 行长度限制由 formatter 处理
+    "B008",   # 函数参数中的函数调用 (常用于 API)
+    "C901",   # 复杂度过高
+    "B904",   # raise without from inside except
+    "PTH123", # 开放式路径操作
+    "B017",   # 不检查裸异常（测试中使用）
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # 允许未使用的导入
+"*/migrations/*" = ["F401", "N806"]  # 迁移文件特殊处理
+"*/tests/*" = ["S101", "BLE001", "B017", "E402"]  # 测试文件允许使用 assert、通用异常、裸异常和非顶层导入
+"config/*" = ["F403", "F405"]  # 配置文件特殊处理
+
+
+[lint.isort]
+# 导入排序设置
+known-first-party = ["src", "config"]
+known-third-party = ["django", "ninja", "pydantic", "jwt"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[format]
+# 格式化设置
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
