@@ -12,52 +12,77 @@ from django.db import models
 class User(AbstractUser):
     """
     用户模型
-    扩展Django内置User模型
+    扩展Django内置User模型，支持RBAC部门管理
     """
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    uid = models.CharField(max_length=64, unique=True, db_index=True, verbose_name="用户UID")
-    email = models.EmailField(unique=True, db_index=True, verbose_name="邮箱")
-    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="手机号")
-    avatar = models.URLField(blank=True, null=True, verbose_name="头像URL")
-    bio = models.TextField(blank=True, null=True, verbose_name="个人简介")
-
-    # 扩展字段
-    date_of_birth = models.DateField(blank=True, null=True, verbose_name="出生日期")
-    gender = models.CharField(
-        max_length=10,
-        choices=[("male", "男"), ("female", "女"), ("other", "其他")],
-        blank=True,
+    id = models.BigAutoField(primary_key=True)
+    mode_type = models.SmallIntegerField(default=0, verbose_name="模式类型")
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+    updated_time = models.DateTimeField(auto_now=True, verbose_name="更新时间")
+    description = models.CharField(max_length=256, blank=True, null=True, verbose_name="描述")
+    
+    # 基本信息
+    avatar = models.CharField(max_length=100, blank=True, null=True, verbose_name="头像")
+    nickname = models.CharField(max_length=150, blank=True, default="", verbose_name="昵称")
+    gender = models.IntegerField(default=0, verbose_name="性别")
+    phone = models.CharField(max_length=16, blank=True, default="", verbose_name="手机号")
+    email = models.EmailField(verbose_name="邮箱")
+    
+    # 部门关系
+    dept = models.ForeignKey(
+        "SystemDeptInfo",
+        on_delete=models.SET_NULL,
         null=True,
-        verbose_name="性别",
+        blank=True,
+        related_name="users",
+        verbose_name="所属部门",
+        db_column="dept_id",
     )
-    address = models.CharField(max_length=255, blank=True, null=True, verbose_name="地址")
-    city = models.CharField(max_length=100, blank=True, null=True, verbose_name="城市")
-    country = models.CharField(max_length=100, blank=True, null=True, verbose_name="国家")
-
-    # 状态字段
-    is_active = models.BooleanField(default=True, verbose_name="是否激活")
-    is_verified = models.BooleanField(default=False, verbose_name="是否验证")
-
-    # 时间戳
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
+    dept_belong = models.ForeignKey(
+        "SystemDeptInfo",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="belong_users",
+        verbose_name="归属部门",
+        db_column="dept_belong_id",
+    )
+    
+    # 创建者和修改者
+    creator = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_users",
+        verbose_name="创建者",
+        db_column="creator_id",
+    )
+    modifier = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="modified_users",
+        verbose_name="修改者",
+        db_column="modifier_id",
+    )
 
     class Meta:
-        db_table = "users"
+        db_table = "system_userinfo"
         verbose_name = "用户"
         verbose_name_plural = "用户"
-        ordering = ["-created_at"]
+        ordering = ["-created_time"]
         indexes = [
             models.Index(fields=["username"]),
             models.Index(fields=["email"]),
             models.Index(fields=["phone"]),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.username
 
-    def get_full_name(self):
+    def get_full_name(self) -> str:
         """获取用户全名"""
         return f"{self.first_name} {self.last_name}".strip() or self.username
 

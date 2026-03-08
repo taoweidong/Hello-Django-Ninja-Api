@@ -5,7 +5,7 @@ API Application - NinjaAPI实例和路由注册
 
 from ninja import NinjaAPI
 
-from src.api.v1 import auth_api, rbac_api, security_api, user_api
+from src.api.v1 import auth_api, rbac_api, security_api, system_api, user_api
 
 # 创建API实例
 api = NinjaAPI(
@@ -17,7 +17,8 @@ api = NinjaAPI(
 # 注册路由
 api.add_router("/v1/auth", auth_api.router, tags=["认证"])
 api.add_router("/v1", user_api.router, tags=["用户"])
-api.add_router("/v1", rbac_api.router, tags=["权限管理"])
+api.add_router("/v1/rbac", rbac_api.router, tags=["权限管理"])
+api.add_router("/v1/system", system_api.router, tags=["系统管理"])
 api.add_router("/v1", security_api.router, tags=["安全"])
 
 
