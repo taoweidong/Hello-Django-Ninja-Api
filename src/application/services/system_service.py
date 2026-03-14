@@ -33,7 +33,9 @@ class SystemService:
 
     # ========== 部门管理 ==========
 
-    async def create_dept(self, dto: DeptCreateDTO, creator_id: int | None = None) -> DeptResponseDTO:
+    async def create_dept(
+        self, dto: DeptCreateDTO, creator_id: int | None = None
+    ) -> DeptResponseDTO:
         """创建部门"""
         # 检查部门编码是否已存在
         existing = await self.system_repo.get_dept_by_code(dto.code)
@@ -51,7 +53,9 @@ class SystemService:
             return None
         return await self._to_dept_response(dept)
 
-    async def update_dept(self, dept_id: str, dto: DeptUpdateDTO, modifier_id: int | None = None) -> DeptResponseDTO:
+    async def update_dept(
+        self, dept_id: str, dto: DeptUpdateDTO, modifier_id: int | None = None
+    ) -> DeptResponseDTO:
         """更新部门"""
         # 检查部门编码是否重复
         if dto.code:
@@ -140,7 +144,9 @@ class SystemService:
 
     # ========== 菜单管理 ==========
 
-    async def create_menu(self, dto: MenuCreateDTO, creator_id: int | None = None) -> MenuResponseDTO:
+    async def create_menu(
+        self, dto: MenuCreateDTO, creator_id: int | None = None
+    ) -> MenuResponseDTO:
         """创建菜单"""
         # 检查菜单名称是否已存在
         existing = await self.system_repo.get_menu_by_name(dto.name)
@@ -158,7 +164,9 @@ class SystemService:
             return None
         return await self._to_menu_response(menu)
 
-    async def update_menu(self, menu_id: str, dto: MenuUpdateDTO, modifier_id: int | None = None) -> MenuResponseDTO:
+    async def update_menu(
+        self, menu_id: str, dto: MenuUpdateDTO, modifier_id: int | None = None
+    ) -> MenuResponseDTO:
         """更新菜单"""
         # 检查菜单名称是否重复
         if dto.name:
@@ -261,7 +269,9 @@ class SystemService:
 
     # ========== 角色管理 ==========
 
-    async def create_role(self, dto: RoleCreateDTO, creator_id: int | None = None) -> RoleResponseDTO:
+    async def create_role(
+        self, dto: RoleCreateDTO, creator_id: int | None = None
+    ) -> RoleResponseDTO:
         """创建角色"""
         # 检查角色编码是否已存在
         existing = await self.system_repo.get_role_by_code(dto.code)
@@ -285,7 +295,9 @@ class SystemService:
         menus = await self.system_repo.get_role_menus(role_id)
         return await self._to_role_response(role, len(menus))
 
-    async def update_role(self, role_id: str, dto: RoleUpdateDTO, modifier_id: int | None = None) -> RoleResponseDTO:
+    async def update_role(
+        self, role_id: str, dto: RoleUpdateDTO, modifier_id: int | None = None
+    ) -> RoleResponseDTO:
         """更新角色"""
         # 检查角色编码是否重复
         if dto.code:

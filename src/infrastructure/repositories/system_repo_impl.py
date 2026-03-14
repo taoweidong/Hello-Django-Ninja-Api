@@ -3,10 +3,6 @@
 System Repository Implementation - 系统相关数据持久化实现
 """
 
-from datetime import datetime
-
-from django.db.models import Q, QuerySet
-
 from src.application.dto.system.dept_dto import DeptCreateDTO, DeptUpdateDTO
 from src.application.dto.system.log_dto import LogFilterDTO
 from src.application.dto.system.menu_dto import MenuCreateDTO, MenuUpdateDTO
@@ -28,7 +24,9 @@ class SystemRepository:
 
     # ========== 部门操作 ==========
 
-    async def create_dept(self, dto: DeptCreateDTO, creator_id: int | None = None) -> SystemDeptInfo:
+    async def create_dept(
+        self, dto: DeptCreateDTO, creator_id: int | None = None
+    ) -> SystemDeptInfo:
         """创建部门"""
         dept = SystemDeptInfo(
             name=dto.name,
@@ -58,7 +56,9 @@ class SystemRepository:
         except SystemDeptInfo.DoesNotExist:
             return None
 
-    async def update_dept(self, dept_id: str, dto: DeptUpdateDTO, modifier_id: int | None = None) -> SystemDeptInfo | None:
+    async def update_dept(
+        self, dept_id: str, dto: DeptUpdateDTO, modifier_id: int | None = None
+    ) -> SystemDeptInfo | None:
         """更新部门"""
         try:
             dept = await SystemDeptInfo.objects.aget(id=dept_id)
@@ -106,7 +106,9 @@ class SystemRepository:
         except SystemDeptInfo.DoesNotExist:
             return False
 
-    async def list_depts(self, is_active: bool | None = None, parent_id: str | None = None) -> list[SystemDeptInfo]:
+    async def list_depts(
+        self, is_active: bool | None = None, parent_id: str | None = None
+    ) -> list[SystemDeptInfo]:
         """获取部门列表"""
         queryset = SystemDeptInfo.objects.all()
         if is_active is not None:
@@ -117,7 +119,10 @@ class SystemRepository:
 
     async def get_dept_tree(self) -> list[SystemDeptInfo]:
         """获取部门树形结构"""
-        return [dept async for dept in SystemDeptInfo.objects.filter(parent__isnull=True).order_by("rank")]
+        return [
+            dept
+            async for dept in SystemDeptInfo.objects.filter(parent__isnull=True).order_by("rank")
+        ]
 
     # ========== 菜单操作 ==========
 
@@ -174,7 +179,9 @@ class SystemRepository:
         except SystemMenu.DoesNotExist:
             return None
 
-    async def update_menu(self, menu_id: str, dto: MenuUpdateDTO, modifier_id: int | None = None) -> SystemMenu | None:
+    async def update_menu(
+        self, menu_id: str, dto: MenuUpdateDTO, modifier_id: int | None = None
+    ) -> SystemMenu | None:
         """更新菜单"""
         try:
             menu = await SystemMenu.objects.aget(id=menu_id)
@@ -227,7 +234,9 @@ class SystemRepository:
         except SystemMenu.DoesNotExist:
             return False
 
-    async def list_menus(self, is_active: bool | None = None, parent_id: str | None = None) -> list[SystemMenu]:
+    async def list_menus(
+        self, is_active: bool | None = None, parent_id: str | None = None
+    ) -> list[SystemMenu]:
         """获取菜单列表"""
         queryset = SystemMenu.objects.select_related("meta", "parent")
         if is_active is not None:
@@ -240,16 +249,22 @@ class SystemRepository:
         """获取菜单树形结构"""
         return [
             menu
-            async for menu in SystemMenu.objects.select_related("meta").filter(parent__isnull=True).order_by("rank")
+            async for menu in SystemMenu.objects.select_related("meta")
+            .filter(parent__isnull=True)
+            .order_by("rank")
         ]
 
     async def get_menus_by_ids(self, menu_ids: list[str]) -> list[SystemMenu]:
         """根据ID列表获取菜单"""
-        return [menu async for menu in SystemMenu.objects.filter(id__in=menu_ids).select_related("meta")]
+        return [
+            menu async for menu in SystemMenu.objects.filter(id__in=menu_ids).select_related("meta")
+        ]
 
     # ========== 角色操作 ==========
 
-    async def create_role(self, dto: RoleCreateDTO, creator_id: int | None = None) -> SystemUserRole:
+    async def create_role(
+        self, dto: RoleCreateDTO, creator_id: int | None = None
+    ) -> SystemUserRole:
         """创建角色"""
         role = SystemUserRole(
             name=dto.name,
@@ -280,7 +295,9 @@ class SystemRepository:
         except SystemUserRole.DoesNotExist:
             return None
 
-    async def update_role(self, role_id: str, dto: RoleUpdateDTO, modifier_id: int | None = None) -> SystemUserRole | None:
+    async def update_role(
+        self, role_id: str, dto: RoleUpdateDTO, modifier_id: int | None = None
+    ) -> SystemUserRole | None:
         """更新角色"""
         try:
             role = await SystemUserRole.objects.aget(id=role_id)
@@ -330,7 +347,9 @@ class SystemRepository:
             # 删除旧的菜单关联
             await SystemUserRoleMenu.objects.filter(userrole_id=role_id).adelete()
             # 创建新的菜单关联
-            menu_relations = [SystemUserRoleMenu(userrole_id=role_id, menu_id=menu_id) for menu_id in menu_ids]
+            menu_relations = [
+                SystemUserRoleMenu(userrole_id=role_id, menu_id=menu_id) for menu_id in menu_ids
+            ]
             await SystemUserRoleMenu.objects.abulk_create(menu_relations)
             return True
         except SystemUserRole.DoesNotExist:
@@ -339,7 +358,10 @@ class SystemRepository:
     async def get_role_menus(self, role_id: str) -> list[SystemMenu]:
         """获取角色的菜单列表"""
         menu_ids = [
-            rm.menu_id async for rm in SystemUserRoleMenu.objects.filter(userrole_id=role_id).values_list("menu_id", flat=True)
+            rm.menu_id
+            async for rm in SystemUserRoleMenu.objects.filter(userrole_id=role_id).values_list(
+                "menu_id", flat=True
+            )
         ]
         return await self.get_menus_by_ids(list(menu_ids))
 
@@ -352,7 +374,10 @@ class SystemRepository:
             # 删除旧的角色关联
             await SystemUserInfoRoles.objects.filter(userinfo_id=user_id).adelete()
             # 创建新的角色关联
-            role_relations = [SystemUserInfoRoles(userinfo_id=user_id, userrole_id=role_id) for role_id in role_ids]
+            role_relations = [
+                SystemUserInfoRoles(userinfo_id=user_id, userrole_id=role_id)
+                for role_id in role_ids
+            ]
             await SystemUserInfoRoles.objects.abulk_create(role_relations)
             return True
         except User.DoesNotExist:
@@ -361,7 +386,10 @@ class SystemRepository:
     async def get_user_roles(self, user_id: int) -> list[SystemUserRole]:
         """获取用户的角色列表"""
         role_ids = [
-            ur.userrole_id async for ur in SystemUserInfoRoles.objects.filter(userinfo_id=user_id).values_list("userrole_id", flat=True)
+            ur.userrole_id
+            async for ur in SystemUserInfoRoles.objects.filter(userinfo_id=user_id).values_list(
+                "userrole_id", flat=True
+            )
         ]
         return [role async for role in SystemUserRole.objects.filter(id__in=role_ids)]
 
@@ -380,7 +408,9 @@ class SystemRepository:
         for role in roles:
             menu_ids = set(
                 rm.menu_id
-                async for rm in SystemUserRoleMenu.objects.filter(userrole_id=role.id).values_list("menu_id", flat=True)
+                async for rm in SystemUserRoleMenu.objects.filter(userrole_id=role.id).values_list(
+                    "menu_id", flat=True
+                )
             )
             if menu_ids:
                 menu_id_sets.append(menu_ids)
@@ -432,7 +462,9 @@ class SystemRepository:
         await log.asave()
         return log
 
-    async def list_operation_logs(self, filters: LogFilterDTO) -> tuple[list[SystemOperationLog], int]:
+    async def list_operation_logs(
+        self, filters: LogFilterDTO
+    ) -> tuple[list[SystemOperationLog], int]:
         """获取操作日志列表（分页）"""
         queryset = SystemOperationLog.objects.all()
 
@@ -457,8 +489,9 @@ class SystemRepository:
         offset = (filters.page - 1) * filters.page_size
         logs = [
             log
-            async for log in queryset.select_related("creator")
-            .order_by("-created_time")[offset : offset + filters.page_size]
+            async for log in queryset.select_related("creator").order_by("-created_time")[
+                offset : offset + filters.page_size
+            ]
         ]
 
         return logs, total

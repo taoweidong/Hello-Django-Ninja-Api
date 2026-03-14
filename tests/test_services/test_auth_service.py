@@ -6,12 +6,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.application.services.auth_service import AuthService
-
 
 @pytest.fixture
 def auth_service():
     """认证服务 fixture"""
+    from src.application.services.auth_service import AuthService
+
     mock_user_repo = Mock()
     mock_jwt_manager = Mock()
     mock_cache = Mock()

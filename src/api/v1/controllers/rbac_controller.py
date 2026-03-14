@@ -68,9 +68,7 @@ class RBACController:
 
     # ========== 用户角色关联 ==========
 
-    async def assign_role_to_user(
-        self, assign_dto: AssignRoleDTO, assigned_by: str = None
-    ) -> bool:
+    async def assign_role_to_user(self, assign_dto: AssignRoleDTO, assigned_by: str = None) -> bool:
         """分配角色给用户"""
         return await self._rbac_service.assign_role_to_user(assign_dto, assigned_by)
 

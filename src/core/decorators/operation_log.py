@@ -4,8 +4,8 @@ Operation Log Decorator - 自动记录API操作日志
 """
 
 import json
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable
 
 from django.http import HttpRequest
 
@@ -54,7 +54,9 @@ def operation_log(module: str, description: str | None = None):
             # 记录操作日志（异步）
             if request:
                 try:
-                    await _log_operation(request, module, description, status_code, response_result, error)
+                    await _log_operation(
+                        request, module, description, status_code, response_result, error
+                    )
                 except Exception:
                     # 日志记录失败不影响主流程
                     pass

@@ -5,10 +5,7 @@
 import json
 
 import pytest
-from django.contrib.auth import get_user_model
 from django.test import Client
-
-User = get_user_model()
 
 
 @pytest.mark.django_db
@@ -17,8 +14,11 @@ class TestAuthAPI:
 
     def setup_method(self):
         """测试方法设置"""
+        from django.contrib.auth import get_user_model
+
         self.client = Client()
         self.base_url = "/api/v1/auth"
+        self.User = get_user_model()
 
     def test_register_success(self, user_data):
         """测试用户注册成功"""
@@ -46,7 +46,7 @@ class TestAuthAPI:
     def test_login_success(self, user_data):
         """测试登录成功"""
         # 先注册用户
-        User.objects.create_user(**user_data)
+        self.User.objects.create_user(**user_data)
 
         # 登录
         login_data = {"username": user_data["username"], "password": user_data["password"]}
@@ -61,7 +61,7 @@ class TestAuthAPI:
 
     def test_login_wrong_password(self, user_data):
         """测试密码错误登录"""
-        User.objects.create_user(**user_data)
+        self.User.objects.create_user(**user_data)
 
         login_data = {"username": user_data["username"], "password": "wrongpassword"}
         response = self.client.post(
@@ -71,7 +71,7 @@ class TestAuthAPI:
 
     def test_logout_success(self, user_data):
         """测试登出成功"""
-        User.objects.create_user(**user_data)
+        self.User.objects.create_user(**user_data)
 
         # 先登录
         login_data = {"username": user_data["username"], "password": user_data["password"]}
@@ -87,7 +87,7 @@ class TestAuthAPI:
 
     def test_refresh_token_success(self, user_data):
         """测试刷新 Token 成功"""
-        User.objects.create_user(**user_data)
+        self.User.objects.create_user(**user_data)
 
         # 先登录
         login_data = {"username": user_data["username"], "password": user_data["password"]}

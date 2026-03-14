@@ -6,12 +6,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.application.services.user_service import UserService
-
 
 @pytest.fixture
 def user_service():
     """用户服务 fixture"""
+    from src.application.services.user_service import UserService
+
     mock_user_repo = Mock()
     mock_rbac_repo = Mock()
     mock_cache = Mock()

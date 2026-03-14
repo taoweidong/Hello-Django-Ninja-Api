@@ -89,7 +89,6 @@ class CacheManager:
         logger.warning(f"Pattern deletion not fully supported: {pattern}")
         return 0
 
-
     @classmethod
     def get_user_cache(cls, user_id: str) -> dict | None:
         """获取用户缓存"""

@@ -64,7 +64,6 @@ class AuthDomainService:
         # 检查是否已撤销
         return not token.is_revoked
 
-
     async def revoke_token(self, token: TokenEntity) -> TokenBlacklistEntity:
         """
         撤销Token

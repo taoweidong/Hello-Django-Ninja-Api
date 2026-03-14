@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 """简单代码检查"""
-import subprocess
 import os
+import subprocess
 
 os.chdir("e:/GitHub/Hello-Django-Ninja-Api")
 

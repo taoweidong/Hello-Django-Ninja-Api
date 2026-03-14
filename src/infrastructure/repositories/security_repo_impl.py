@@ -97,9 +97,7 @@ class SecurityRepositoryImpl(SecurityRepository):
 
     async def is_whitelisted(self, ip_address: str) -> bool:
         """检查IP是否在白名单中"""
-        return await IPWhitelist.objects.filter(
-            ip_address=ip_address, is_active=True
-        ).aexists()
+        return await IPWhitelist.objects.filter(ip_address=ip_address, is_active=True).aexists()
 
     async def list_whitelist(self, include_inactive: bool = False) -> list[IPWhitelistEntity]:
         """列出白名单"""
@@ -169,9 +167,7 @@ class SecurityRepositoryImpl(SecurityRepository):
         expires_at = now + timedelta(seconds=window_seconds)
 
         try:
-            model = await RateLimitRecord.objects.aget(
-                key=key, endpoint=endpoint, method=method
-            )
+            model = await RateLimitRecord.objects.aget(key=key, endpoint=endpoint, method=method)
             # 检查是否过期
             if model.expires_at < now:
                 model.count = 0

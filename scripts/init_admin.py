@@ -3,8 +3,8 @@
 使用 Django shell 执行，避免导入链问题
 """
 import os
-import sys
 import subprocess
+import sys
 
 
 def run_command(cmd, check=True):

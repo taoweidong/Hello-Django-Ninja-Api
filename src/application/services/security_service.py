@@ -142,7 +142,9 @@ class SecurityService:
         entities = await self._repository.list_rate_limit_rules()
         return [self._to_rate_limit_response(e) for e in entities]
 
-    async def get_rate_limit_status(self, key: str, endpoint: str, method: str) -> RateLimitStatusDTO:
+    async def get_rate_limit_status(
+        self, key: str, endpoint: str, method: str
+    ) -> RateLimitStatusDTO:
         """获取限流状态"""
         rule = await self._repository.get_rate_limit_rule(endpoint, method)
         if not rule or not rule.is_active:

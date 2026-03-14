@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 """
 代码检查和修复脚本
 """
+import os
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 # 设置 UTF-8 编码

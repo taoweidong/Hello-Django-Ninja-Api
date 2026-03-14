@@ -3,9 +3,14 @@ Pytest 配置文件
 """
 
 import pytest
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
+
+@pytest.fixture
+def User():
+    """User模型fixture"""
+    from django.contrib.auth import get_user_model
+
+    return get_user_model()
 
 
 @pytest.fixture

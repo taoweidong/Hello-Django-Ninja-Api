@@ -4,7 +4,7 @@ Generic CRUD Repository - 提供通用的CRUD操作和实体转换
 """
 
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional, Type, TypeVar
+from typing import Generic, TypeVar
 
 from django.db import models
 
@@ -33,7 +33,7 @@ class EntityConverter(ABC, Generic[M, E]):
         pass
 
     @abstractmethod
-    def to_model(self, entity: E, model: Optional[M] = None) -> M:
+    def to_model(self, entity: E, model: M | None = None) -> M:
         """
         实体转换为模型
 
@@ -57,7 +57,7 @@ class CRUDRepository(Generic[M, E], ABC):
         E: 实体类型
     """
 
-    def __init__(self, model_class: Type[M], converter: EntityConverter[M, E]):
+    def __init__(self, model_class: type[M], converter: EntityConverter[M, E]):
         """
         初始化仓储
 
@@ -68,7 +68,7 @@ class CRUDRepository(Generic[M, E], ABC):
         self._model_class = model_class
         self._converter = converter
 
-    async def get_by_id(self, id: str) -> Optional[E]:
+    async def get_by_id(self, id: str) -> E | None:
         """
         根据ID获取实体
 
@@ -84,7 +84,7 @@ class CRUDRepository(Generic[M, E], ABC):
         except self._model_class.DoesNotExist:
             return None
 
-    async def get_all(self) -> List[E]:
+    async def get_all(self) -> list[E]:
         """
         获取所有实体
 
@@ -94,7 +94,7 @@ class CRUDRepository(Generic[M, E], ABC):
         models = await self._model_class.objects.all().alist()
         return [self._converter.to_entity(model) for model in models]
 
-    async def list_all(self, page: int = 1, page_size: int = 10) -> List[E]:
+    async def list_all(self, page: int = 1, page_size: int = 10) -> list[E]:
         """
         分页获取实体列表
 
@@ -184,7 +184,7 @@ class CRUDRepository(Generic[M, E], ABC):
         """
         return await self._model_class.objects.acount()
 
-    async def get_by_field(self, field_name: str, value: any) -> Optional[E]:
+    async def get_by_field(self, field_name: str, value: any) -> E | None:
         """
         根据字段值获取实体
 
@@ -204,7 +204,7 @@ class CRUDRepository(Generic[M, E], ABC):
 
     async def list_by_field(
         self, field_name: str, value: any, page: int = 1, page_size: int = 10
-    ) -> List[E]:
+    ) -> list[E]:
         """
         根据字段值分页获取实体列表
 

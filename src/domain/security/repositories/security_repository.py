@@ -4,7 +4,6 @@ Security Repository Interface - 定义安全相关数据访问接口
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 
 from src.domain.security.entities.ip_blacklist_entity import IPBlacklistEntity
 from src.domain.security.entities.ip_whitelist_entity import IPWhitelistEntity

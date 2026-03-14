@@ -100,8 +100,12 @@ class SystemMenuMeta(models.Model):
     is_keepalive = models.BooleanField(default=True, verbose_name="是否缓存")
     frame_url = models.URLField(blank=True, null=True, verbose_name="iframe地址")
     frame_loading = models.BooleanField(default=False, verbose_name="iframe加载状态")
-    transition_enter = models.CharField(max_length=255, blank=True, null=True, verbose_name="进入动画")
-    transition_leave = models.CharField(max_length=255, blank=True, null=True, verbose_name="离开动画")
+    transition_enter = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="进入动画"
+    )
+    transition_leave = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="离开动画"
+    )
     is_hidden_tag = models.BooleanField(default=False, verbose_name="是否隐藏标签")
     fixed_tag = models.BooleanField(default=False, verbose_name="固定标签")
     dynamic_level = models.IntegerField(default=0, verbose_name="动态层级")

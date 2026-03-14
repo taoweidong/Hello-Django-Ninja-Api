@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "python-script-generator": {
+      "name": "Python Script Generator",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=python-script-generator",
+      "source": "skillhub",
+      "version": "1.0.0"
+    },
+    "python-code-test": {
+      "name": "Python Code Tester",
+      "zip_url": "https://lightmake.site/api/v1/download?slug=python-code-test",
+      "source": "skillhub",
+      "version": "1.0.3"
+    }
+  }
+}

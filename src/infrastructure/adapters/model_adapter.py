@@ -4,7 +4,7 @@ Model Adapter Base - 提供统一的模型与实体转换
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from django.db import models
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ class BaseModelAdapter(ABC, Generic[M, E]):
         E: 实体类型（Pydantic模型）
     """
 
-    def __init__(self, model_class: Type[M], entity_class: Type[E]):
+    def __init__(self, model_class: type[M], entity_class: type[E]):
         """
         初始化适配器
 
@@ -36,7 +36,7 @@ class BaseModelAdapter(ABC, Generic[M, E]):
         self._entity_class = entity_class
 
     @abstractmethod
-    def get_field_mapping(self) -> Dict[str, str]:
+    def get_field_mapping(self) -> dict[str, str]:
         """
         获取字段映射关系
 
@@ -78,7 +78,7 @@ class BaseModelAdapter(ABC, Generic[M, E]):
 
         return self._entity_class(**data)
 
-    def to_model(self, entity: E, model: Optional[M] = None) -> M:
+    def to_model(self, entity: E, model: M | None = None) -> M:
         """
         实体转换为模型
 
@@ -113,7 +113,7 @@ class BaseModelAdapter(ABC, Generic[M, E]):
 
         return model
 
-    def to_entity_dict(self, model: M) -> Dict[str, Any]:
+    def to_entity_dict(self, model: M) -> dict[str, Any]:
         """
         模型转换为实体字典
 
@@ -137,7 +137,7 @@ class BaseModelAdapter(ABC, Generic[M, E]):
 
         return data
 
-    def to_model_dict(self, entity: E) -> Dict[str, Any]:
+    def to_model_dict(self, entity: E) -> dict[str, Any]:
         """
         实体转换为模型字典
 
@@ -187,9 +187,9 @@ class SimpleModelAdapter(BaseModelAdapter[M, E]):
 
     def __init__(
         self,
-        model_class: Type[M],
-        entity_class: Type[E],
-        field_mapping: Dict[str, str],
+        model_class: type[M],
+        entity_class: type[E],
+        field_mapping: dict[str, str],
     ):
         """
         初始化简单模型适配器
@@ -202,6 +202,6 @@ class SimpleModelAdapter(BaseModelAdapter[M, E]):
         super().__init__(model_class, entity_class)
         self._field_mapping = field_mapping
 
-    def get_field_mapping(self) -> Dict[str, str]:
+    def get_field_mapping(self) -> dict[str, str]:
         """获取字段映射关系"""
         return self._field_mapping

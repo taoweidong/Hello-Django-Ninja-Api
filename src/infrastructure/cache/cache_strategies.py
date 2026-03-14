@@ -4,7 +4,6 @@ Cache Clear Strategies - 统一的缓存清理策略模式实现
 """
 
 from abc import ABC, abstractmethod
-from typing import List
 
 
 class CacheClearStrategy(ABC):
@@ -230,7 +229,7 @@ class CacheManagerAdapter:
         self.clear_permissions(user_id)
         self.clear_roles(user_id)
 
-    def clear_batch(self, user_ids: List[str]) -> None:
+    def clear_batch(self, user_ids: list[str]) -> None:
         """
         批量清理用户缓存
 

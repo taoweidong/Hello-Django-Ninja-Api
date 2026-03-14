@@ -3,7 +3,7 @@
 System Management API - 部门、菜单、角色、操作日志管理接口
 """
 
-from ninja import Query, Router
+from ninja import Router
 from pydantic import BaseModel
 
 from src.application.dto.system import (

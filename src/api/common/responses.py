@@ -3,7 +3,7 @@ API响应工具
 API Response Utilities - 统一的响应对象和工厂
 """
 
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel
 
@@ -28,7 +28,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
         T: 列表项的数据类型
     """
 
-    items: List[T]
+    items: list[T]
     total: int
     page: int
     page_size: int
@@ -54,9 +54,7 @@ class ResponseFactory:
         return {"message": msg}
 
     @staticmethod
-    def paginated(
-        items: List[Any], total: int, page: int, page_size: int
-    ) -> dict[str, Any]:
+    def paginated(items: list[Any], total: int, page: int, page_size: int) -> dict[str, Any]:
         """
         创建分页响应
 

@@ -4,7 +4,7 @@ DTO Base Classes - 提供通用的数据传输对象基类
 """
 
 from datetime import datetime
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -43,7 +43,7 @@ class BasePaginatedResponse(BaseModel, Generic[T]):
         has_prev: 是否有上一页
     """
 
-    items: List[T] = Field(..., description="数据列表")
+    items: list[T] = Field(..., description="数据列表")
     total: int = Field(..., description="总数")
     page: int = Field(..., description="当前页码")
     page_size: int = Field(..., description="每页数量")
@@ -58,7 +58,7 @@ class BasePaginatedResponse(BaseModel, Generic[T]):
     @classmethod
     def create(
         cls,
-        items: List[T],
+        items: list[T],
         total: int,
         page: int,
         page_size: int,

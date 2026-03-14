@@ -20,14 +20,14 @@ class User(AbstractUser):
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_time = models.DateTimeField(auto_now=True, verbose_name="更新时间")
     description = models.CharField(max_length=256, blank=True, null=True, verbose_name="描述")
-    
+
     # 基本信息
     avatar = models.CharField(max_length=100, blank=True, null=True, verbose_name="头像")
     nickname = models.CharField(max_length=150, blank=True, default="", verbose_name="昵称")
     gender = models.IntegerField(default=0, verbose_name="性别")
     phone = models.CharField(max_length=16, blank=True, default="", verbose_name="手机号")
     email = models.EmailField(verbose_name="邮箱")
-    
+
     # 部门关系
     dept = models.ForeignKey(
         "SystemDeptInfo",
@@ -47,7 +47,7 @@ class User(AbstractUser):
         verbose_name="归属部门",
         db_column="dept_belong_id",
     )
-    
+
     # 创建者和修改者
     creator = models.ForeignKey(
         "self",
