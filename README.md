@@ -461,7 +461,7 @@ uv pip install -e ".[dev]"
 
 # 5. 数据库迁移
 python manage.py makemigrations
-python manage.py migrate
+python manage.py migrate --run-syncdb
 
 # 6. 创建初始管理员账号
 python scripts/init_admin.py

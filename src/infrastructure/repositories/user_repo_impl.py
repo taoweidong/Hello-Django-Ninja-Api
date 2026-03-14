@@ -117,7 +117,9 @@ class UserRepositoryImpl(UserRepositoryInterface):
     async def list_all(self, page: int = 1, page_size: int = 10) -> list[UserEntity]:
         """获取用户列表"""
         offset = (page - 1) * page_size
-        users = await User.objects.all()[offset : offset + page_size]
+        # 使用 async iterator 获取分页数据
+        queryset = User.objects.all()[offset : offset + page_size]
+        users = [user async for user in queryset]
         return [self._to_entity(user) for user in users]
 
     async def exists_by_username(self, username: str) -> bool:
