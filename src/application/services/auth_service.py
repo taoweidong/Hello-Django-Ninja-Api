@@ -26,9 +26,9 @@ class AuthService:
     async def login(
         self,
         login_dto: UserLoginDTO,
-        ip_address: str = None,
-        user_agent: str = None,
-        device_info: str = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        device_info: str | None = None,
     ) -> TokenResponseDTO:
         """
         用户登录
@@ -75,10 +75,12 @@ class AuthService:
         )
 
         # 保存刷新Token
+        decoded = jwt_manager.decode_token(refresh_token)
+        jti = decoded.get("jti") if decoded else None
         await self._save_refresh_token(
             user_id=str(user.id),
             token=refresh_token,
-            jti=jwt_manager.decode_token(refresh_token)["jti"],
+            jti=jti,
             expires_at=refresh_expire,
             ip_address=ip_address,
             device_info=device_info,
@@ -114,7 +116,7 @@ class AuthService:
         """
         # 验证刷新Token
         is_valid, payload, _ = token_validator.validate_refresh_token(refresh_dto.refresh_token)
-        if not is_valid:
+        if not is_valid or payload is None:
             raise ValueError("刷新Token无效或已过期")
 
         user_id = payload.get("user_id")
@@ -153,6 +155,7 @@ class AuthService:
 
         return TokenResponseDTO(
             access_token=access_token,
+            refresh_token=None,
             token_type="Bearer",
             expires_in=access_lifetime * 60,
             user=user_info,
@@ -189,10 +192,10 @@ class AuthService:
         self,
         user_id: str,
         token: str,
-        jti: str,
+        jti: str | None,
         expires_at: datetime,
-        ip_address: str = None,
-        device_info: str = None,
+        ip_address: str | None = None,
+        device_info: str | None = None,
     ) -> None:
         """保存刷新Token"""
         await RefreshToken.objects.acreate(
@@ -207,11 +210,11 @@ class AuthService:
     async def _create_login_log(
         self,
         user: User,
-        ip_address: str,
-        user_agent: str,
-        device_info: str,
+        ip_address: str | None,
+        user_agent: str | None,
+        device_info: str | None,
         status: bool,
-        fail_reason: str = None,
+        fail_reason: str | None = None,
     ) -> None:
         """创建登录日志"""
         await LoginLog.objects.acreate(

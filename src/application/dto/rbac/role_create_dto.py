@@ -23,3 +23,7 @@ class RoleCreateDTO(BaseModel):
                 "permissions": ["user:read", "user:write", "user:delete"],
             }
         }
+
+
+# 重建模型以解决循环引用问题
+RoleCreateDTO.model_rebuild()

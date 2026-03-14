@@ -14,3 +14,7 @@ class IPWhitelistDTO(BaseModel):
 
     class Config:
         json_schema_extra = {"example": {"ip_address": "10.0.0.1", "description": "内部网络"}}
+
+
+# 重建模型以解决循环引用问题
+IPWhitelistDTO.model_rebuild()

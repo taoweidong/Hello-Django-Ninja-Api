@@ -14,3 +14,7 @@ class AssignRoleDTO(BaseModel):
 
     class Config:
         json_schema_extra = {"example": {"user_id": "uuid", "role_id": "uuid"}}
+
+
+# 重建模型以解决循环引用问题
+AssignRoleDTO.model_rebuild()

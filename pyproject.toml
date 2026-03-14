@@ -90,7 +90,7 @@ explicit_package_bases = true
 django_settings_module = "config.settings"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "config.settings"
+DJANGO_SETTINGS_MODULE = "config.settings.testing"
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -99,9 +99,6 @@ addopts = [
     "--strict-config",
     "--tb=short",
     "-ra",
-    "--cov=src",
-    "--cov-report=html",
-    "--cov-report=term-missing",
 ]
 testpaths = ["tests"]
 markers = [

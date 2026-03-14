@@ -3,6 +3,16 @@ Pytest 配置文件
 """
 
 import pytest
+from django.core.management import call_command
+from django.db import connection
+
+
+@pytest.fixture(scope="session")
+def django_db_setup(django_db_setup, django_db_blocker):
+    """会话级别的数据库设置，确保迁移正确执行"""
+    with django_db_blocker.unblock():
+        # 创建所有表
+        call_command("migrate", verbosity=0, interactive=False)
 
 
 @pytest.fixture

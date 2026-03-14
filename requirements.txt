@@ -3,7 +3,8 @@ django==4.2.7
 djangorestframework==3.14.0
 
 # ========== API框架 ==========
-django-ninja==1.0.0
+django-ninja==1.6.0
+django-ninja-extra==0.31.2
 pydantic==2.5.0
 
 # ========== 认证 ==========

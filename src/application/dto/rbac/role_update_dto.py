@@ -21,3 +21,7 @@ class RoleUpdateDTO(BaseModel):
                 "permissions": ["user:read", "user:write", "user:delete", "role:manage"],
             }
         }
+
+
+# 重建模型以解决循环引用问题
+RoleUpdateDTO.model_rebuild()

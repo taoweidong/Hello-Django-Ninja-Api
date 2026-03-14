@@ -15,3 +15,7 @@ class RefreshTokenDTO(BaseModel):
         json_schema_extra = {
             "example": {"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
         }
+
+
+# 重建模型以解决循环引用问题
+RefreshTokenDTO.model_rebuild()

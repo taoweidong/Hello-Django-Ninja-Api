@@ -25,3 +25,7 @@ class UserUpdateDTO(BaseModel):
                 "bio": "Hello, I'm John!",
             }
         }
+
+
+# 重建模型以解决循环引用问题
+UserUpdateDTO.model_rebuild()

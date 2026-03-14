@@ -27,3 +27,7 @@ class UserCreateDTO(BaseModel):
                 "phone": "13800138000",
             }
         }
+
+
+# 重建模型以解决循环引用问题
+UserCreateDTO.model_rebuild()

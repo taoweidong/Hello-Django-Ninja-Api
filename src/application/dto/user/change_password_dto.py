@@ -16,3 +16,7 @@ class ChangePasswordDTO(BaseModel):
         json_schema_extra = {
             "example": {"old_password": "old_password123", "new_password": "new_password123"}
         }
+
+
+# 重建模型以解决循环引用问题
+ChangePasswordDTO.model_rebuild()

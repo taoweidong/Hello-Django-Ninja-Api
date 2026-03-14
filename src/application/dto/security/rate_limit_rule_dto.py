@@ -29,3 +29,7 @@ class RateLimitRuleDTO(BaseModel):
                 "description": "用户列表接口限流",
             }
         }
+
+
+# 重建模型以解决循环引用问题
+RateLimitRuleDTO.model_rebuild()

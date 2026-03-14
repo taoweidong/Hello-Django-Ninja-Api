@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class UserLoginDTO(BaseModel):
-    """用户登录DTO"""
+    """用户登录 DTO"""
 
     username: str = Field(..., description="用户名")
     password: str = Field(..., description="密码")
@@ -21,3 +21,7 @@ class UserLoginDTO(BaseModel):
                 "device_info": "iPhone 14 Pro",
             }
         }
+
+
+# 重建模型以解决循环引用问题
+UserLoginDTO.model_rebuild()

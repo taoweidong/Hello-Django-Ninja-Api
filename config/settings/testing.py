@@ -26,3 +26,6 @@ CACHES = {
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
+
+# 禁用速率限制
+RATE_LIMIT_ENABLED = False

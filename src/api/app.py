@@ -1,25 +1,33 @@
 """
 API应用实例
-API Application - NinjaAPI实例和路由注册
+API Application - NinjaExtraAPI实例和路由注册
 """
 
-from ninja import NinjaAPI
+from ninja_extra import NinjaExtraAPI
 
-from src.api.v1 import auth_api, rbac_api, security_api, system_api, user_api
+from src.api.v1.controllers import (
+    AuthController,
+    RBACController,
+    SecurityController,
+    SystemController,
+    UserController,
+)
 
 # 创建API实例
-api = NinjaAPI(
+api = NinjaExtraAPI(
     title="Hello-Django-Ninja-Api",
-    description="基于Django-Ninja的RESTful API服务 - 集成JWT认证和RBAC权限管理",
+    description="基于Django-Ninja-Extra的RESTful API服务 - 集成JWT认证和RBAC权限管理",
     version="1.0.0",
 )
 
-# 注册路由
-api.add_router("/v1/auth", auth_api.router, tags=["认证"])
-api.add_router("/v1", user_api.router, tags=["用户"])
-api.add_router("/v1/rbac", rbac_api.router, tags=["权限管理"])
-api.add_router("/v1/system", system_api.router, tags=["系统管理"])
-api.add_router("/v1", security_api.router, tags=["安全"])
+# 注册控制器
+api.register_controllers(
+    AuthController,
+    UserController,
+    RBACController,
+    SecurityController,
+    SystemController,
+)
 
 
 @api.get("/health", tags=["系统"])
