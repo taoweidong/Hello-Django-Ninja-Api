@@ -14,13 +14,7 @@ class UserLoginDTO(BaseModel):
     device_info: str | None = Field(None, description="设备信息")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "username": "john_doe",
-                "password": "password123",
-                "device_info": "iPhone 14 Pro",
-            }
-        }
+        json_schema_extra = {"example": {"username": "john_doe", "password": "password123", "device_info": "iPhone 14 Pro"}}
 
 
 # 重建模型以解决循环引用问题

@@ -3,30 +3,10 @@
 System DTO Module
 """
 
-from src.application.dto.system.dept_dto import (
-    DeptCreateDTO,
-    DeptResponseDTO,
-    DeptTreeDTO,
-    DeptUpdateDTO,
-)
-from src.application.dto.system.log_dto import (
-    LogFilterDTO,
-    LogResponseDTO,
-)
-from src.application.dto.system.menu_dto import (
-    MenuCreateDTO,
-    MenuMetaCreateDTO,
-    MenuMetaResponseDTO,
-    MenuResponseDTO,
-    MenuTreeDTO,
-    MenuUpdateDTO,
-)
-from src.application.dto.system.role_dto import (
-    RoleAssignMenuDTO,
-    RoleCreateDTO,
-    RoleResponseDTO,
-    RoleUpdateDTO,
-)
+from src.application.dto.system.dept_dto import DeptCreateDTO, DeptResponseDTO, DeptTreeDTO, DeptUpdateDTO
+from src.application.dto.system.log_dto import LogFilterDTO, LogResponseDTO
+from src.application.dto.system.menu_dto import MenuCreateDTO, MenuMetaCreateDTO, MenuMetaResponseDTO, MenuResponseDTO, MenuTreeDTO, MenuUpdateDTO
+from src.application.dto.system.role_dto import RoleAssignMenuDTO, RoleCreateDTO, RoleResponseDTO, RoleUpdateDTO
 
 __all__ = [
     # 部门

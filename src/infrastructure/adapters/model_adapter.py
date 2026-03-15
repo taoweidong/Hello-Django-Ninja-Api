@@ -3,8 +3,9 @@
 Model Adapter Base - 提供统一的模型与实体转换
 """
 
+import contextlib
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar
+from typing import Any, Generic, TypeVar
 
 from django.db import models
 from pydantic import BaseModel
@@ -90,7 +91,6 @@ class BaseModelAdapter(ABC, Generic[M, E]):
             Django模型实例
         """
         field_mapping = self.get_field_mapping()
-        reverse_mapping = {v: k for k, v in field_mapping.items()}
 
         if model is None:
             model = self._model_class()
@@ -104,10 +104,8 @@ class BaseModelAdapter(ABC, Generic[M, E]):
                 if model_field == "id" and isinstance(value, str):
                     import uuid
 
-                    try:
+                    with contextlib.suppress(ValueError):
                         value = uuid.UUID(value)
-                    except ValueError:
-                        pass
 
                 setattr(model, model_field, value)
 
@@ -158,10 +156,8 @@ class BaseModelAdapter(ABC, Generic[M, E]):
                 if model_field == "id" and isinstance(value, str):
                     import uuid
 
-                    try:
+                    with contextlib.suppress(ValueError):
                         value = uuid.UUID(value)
-                    except ValueError:
-                        pass
 
                 data[model_field] = value
 
@@ -185,12 +181,7 @@ class SimpleModelAdapter(BaseModelAdapter[M, E]):
         )
     """
 
-    def __init__(
-        self,
-        model_class: type[M],
-        entity_class: type[E],
-        field_mapping: dict[str, str],
-    ):
+    def __init__(self, model_class: type[M], entity_class: type[E], field_mapping: dict[str, str]):
         """
         初始化简单模型适配器
 

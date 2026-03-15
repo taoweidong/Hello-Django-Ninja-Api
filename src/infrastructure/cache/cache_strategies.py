@@ -67,9 +67,9 @@ class AllCacheStrategy(CacheClearStrategy):
 
         cache_manager.delete_roles_cache(user_id)
 
-    def clear_user_cache(self, user_id: str) -> None:
+    def clear_all_cache(self, user_id: str) -> None:
         """
-        清理用户所有缓存（重写父类方法）
+        清理用户所有缓存
         一次性清理所有相关缓存
         """
         self.clear_user_cache(user_id)
@@ -127,12 +127,7 @@ class SelectiveCacheStrategy(CacheClearStrategy):
     根据配置选择性清理特定缓存
     """
 
-    def __init__(
-        self,
-        clear_user: bool = True,
-        clear_permissions: bool = True,
-        clear_roles: bool = True,
-    ):
+    def __init__(self, clear_user: bool = True, clear_permissions: bool = True, clear_roles: bool = True):
         """
         初始化选择性缓存策略
 

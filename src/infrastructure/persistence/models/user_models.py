@@ -30,13 +30,7 @@ class User(AbstractUser):
 
     # 部门关系
     dept = models.ForeignKey(
-        "SystemDeptInfo",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="users",
-        verbose_name="所属部门",
-        db_column="dept_id",
+        "SystemDeptInfo", on_delete=models.SET_NULL, null=True, blank=True, related_name="users", verbose_name="所属部门", db_column="dept_id"
     )
     dept_belong = models.ForeignKey(
         "SystemDeptInfo",
@@ -50,22 +44,10 @@ class User(AbstractUser):
 
     # 创建者和修改者
     creator = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_users",
-        verbose_name="创建者",
-        db_column="creator_id",
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_users", verbose_name="创建者", db_column="creator_id"
     )
     modifier = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_users",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_users", verbose_name="修改者", db_column="modifier_id"
     )
 
     class Meta:
@@ -73,11 +55,7 @@ class User(AbstractUser):
         verbose_name = "用户"
         verbose_name_plural = "用户"
         ordering = ["-created_time"]
-        indexes = [
-            models.Index(fields=["username"]),
-            models.Index(fields=["email"]),
-            models.Index(fields=["phone"]),
-        ]
+        indexes = [models.Index(fields=["username"]), models.Index(fields=["email"]), models.Index(fields=["phone"])]
 
     def __str__(self) -> str:
         return self.username
@@ -94,9 +72,7 @@ class UserProfile(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="profile", verbose_name="用户"
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile", verbose_name="用户")
 
     # 扩展信息
     website = models.URLField(blank=True, null=True, verbose_name="个人网站")
@@ -125,9 +101,7 @@ class UserDevice(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="devices", verbose_name="用户"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="devices", verbose_name="用户")
     device_id = models.CharField(max_length=255, verbose_name="设备ID")
     device_name = models.CharField(max_length=255, verbose_name="设备名称")
     device_type = models.CharField(max_length=50, verbose_name="设备类型")

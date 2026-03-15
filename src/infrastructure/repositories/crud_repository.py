@@ -3,6 +3,7 @@
 Generic CRUD Repository - 提供通用的CRUD操作和实体转换
 """
 
+import contextlib
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
@@ -137,10 +138,8 @@ class CRUDRepository(Generic[M, E], ABC):
         # 如果提供了ID，先获取现有模型
         existing_model = None
         if id:
-            try:
+            with contextlib.suppress(self._model_class.DoesNotExist):
                 existing_model = await self._model_class.objects.aget(id=id)
-            except self._model_class.DoesNotExist:
-                pass
 
         model = self._converter.to_model(entity, existing_model)
         await model.asave()
@@ -202,9 +201,7 @@ class CRUDRepository(Generic[M, E], ABC):
         except self._model_class.DoesNotExist:
             return None
 
-    async def list_by_field(
-        self, field_name: str, value: any, page: int = 1, page_size: int = 10
-    ) -> list[E]:
+    async def list_by_field(self, field_name: str, value: any, page: int = 1, page_size: int = 10) -> list[E]:
         """
         根据字段值分页获取实体列表
 
@@ -219,9 +216,7 @@ class CRUDRepository(Generic[M, E], ABC):
         """
         offset = (page - 1) * page_size
         filter_kwargs = {field_name: value}
-        models = [m async for m in self._model_class.objects.filter(**filter_kwargs)[
-            offset : offset + page_size
-        ]]
+        models = [m async for m in self._model_class.objects.filter(**filter_kwargs)[offset : offset + page_size]]
         return [self._converter.to_entity(model) for model in models]
 
     async def exists_by_field(self, field_name: str, value: any) -> bool:

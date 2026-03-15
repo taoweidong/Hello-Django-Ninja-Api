@@ -30,12 +30,7 @@ ROLE_GUEST = "guest"
 ROLE_MODERATOR = "moderator"
 
 # 系统角色名称
-ROLE_NAMES = {
-    ROLE_ADMIN: "管理员",
-    ROLE_USER: "普通用户",
-    ROLE_GUEST: "访客",
-    ROLE_MODERATOR: "版主",
-}
+ROLE_NAMES = {ROLE_ADMIN: "管理员", ROLE_USER: "普通用户", ROLE_GUEST: "访客", ROLE_MODERATOR: "版主"}
 
 # 资源类型
 RESOURCE_USER = "user"

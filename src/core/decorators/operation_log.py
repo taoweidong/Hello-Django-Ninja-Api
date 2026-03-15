@@ -3,6 +3,7 @@
 Operation Log Decorator - 自动记录API操作日志
 """
 
+import contextlib
 import json
 from collections.abc import Callable
 from functools import wraps
@@ -53,13 +54,8 @@ def operation_log(module: str, description: str | None = None):
 
             # 记录操作日志（异步）
             if request:
-                try:
-                    await _log_operation(
-                        request, module, description, status_code, response_result, error
-                    )
-                except Exception:
-                    # 日志记录失败不影响主流程
-                    pass
+                with contextlib.suppress(Exception):
+                    await _log_operation(request, module, description, status_code, response_result)
 
             # 如果有错误，重新抛出
             if error:
@@ -73,12 +69,7 @@ def operation_log(module: str, description: str | None = None):
 
 
 async def _log_operation(
-    request: HttpRequest,
-    module: str,
-    description: str | None,
-    status_code: int,
-    response_result: str | None,
-    error: Exception | None,
+    request: HttpRequest, module: str, description: str | None, status_code: int, response_result: str | None
 ) -> None:
     """记录操作日志"""
     repo = SystemRepository()
@@ -130,10 +121,7 @@ async def _log_operation(
 def _get_client_ip(request: HttpRequest) -> str:
     """获取客户端IP地址"""
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(",")[0]
-    else:
-        ip = request.META.get("REMOTE_ADDR", "")
+    ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR", "")
     return ip[:39] if ip else ""
 
 

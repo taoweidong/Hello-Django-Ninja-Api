@@ -9,10 +9,4 @@ from src.application.dto.user.user_login_dto import UserLoginDTO
 from src.application.dto.user.user_response_dto import UserResponseDTO
 from src.application.dto.user.user_update_dto import UserUpdateDTO
 
-__all__ = [
-    "UserCreateDTO",
-    "UserUpdateDTO",
-    "UserResponseDTO",
-    "UserLoginDTO",
-    "ChangePasswordDTO",
-]
+__all__ = ["UserCreateDTO", "UserUpdateDTO", "UserResponseDTO", "UserLoginDTO", "ChangePasswordDTO"]

@@ -57,13 +57,7 @@ class RateLimitMiddleware:
         # 检查限流
         if not self._check_rate_limit(ip, request.path, request.method):
             logger.warning(f"Rate limit exceeded for IP: {ip}, Path: {request.path}")
-            return JsonResponse(
-                {
-                    "error": "RATE_LIMIT_ERROR",
-                    "message": "请求过于频繁，请稍后再试",
-                },
-                status=429,
-            )
+            return JsonResponse({"error": "RATE_LIMIT_ERROR", "message": "请求过于频繁，请稍后再试"}, status=429)
 
         return self.get_response(request)
 
@@ -78,10 +72,7 @@ class RateLimitMiddleware:
             客户端IP地址
         """
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
+        ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR", "127.0.0.1")
         return ip
 
     def _check_rate_limit(self, ip: str, path: str, method: str) -> bool:

@@ -24,11 +24,7 @@ class AuthService:
     """
 
     async def login(
-        self,
-        login_dto: UserLoginDTO,
-        ip_address: str | None = None,
-        user_agent: str | None = None,
-        device_info: str | None = None,
+        self, login_dto: UserLoginDTO, ip_address: str | None = None, user_agent: str | None = None, device_info: str | None = None
     ) -> TokenResponseDTO:
         """
         用户登录
@@ -42,17 +38,13 @@ class AuthService:
         # 检查用户是否激活
         if not user.is_active:
             # 记录登录失败日志
-            await self._create_login_log(
-                user, ip_address, user_agent, device_info, False, "用户已被停用"
-            )
+            await self._create_login_log(user, ip_address, user_agent, device_info, False, "用户已被停用")
             raise ValueError("用户已被停用")
 
         # 验证密码
         if not user.check_password(login_dto.password):
             # 记录登录失败日志
-            await self._create_login_log(
-                user, ip_address, user_agent, device_info, False, "密码错误"
-            )
+            await self._create_login_log(user, ip_address, user_agent, device_info, False, "密码错误")
             raise ValueError("用户名或密码错误")
 
         # 获取用户角色和权限
@@ -64,26 +56,15 @@ class AuthService:
 
         # 生成Token
         access_token, access_expire = jwt_manager.create_access_token(
-            user_id=str(user.id),
-            username=user.username,
-            roles=role_codes,
-            permissions=permission_codes,
+            user_id=str(user.id), username=user.username, roles=role_codes, permissions=permission_codes
         )
-        refresh_token, refresh_expire = jwt_manager.create_refresh_token(
-            user_id=str(user.id),
-            username=user.username,
-        )
+        refresh_token, refresh_expire = jwt_manager.create_refresh_token(user_id=str(user.id), username=user.username)
 
         # 保存刷新Token
         decoded = jwt_manager.decode_token(refresh_token)
         jti = decoded.get("jti") if decoded else None
         await self._save_refresh_token(
-            user_id=str(user.id),
-            token=refresh_token,
-            jti=jti,
-            expires_at=refresh_expire,
-            ip_address=ip_address,
-            device_info=device_info,
+            user_id=str(user.id), token=refresh_token, jti=jti, expires_at=refresh_expire, ip_address=ip_address, device_info=device_info
         )
 
         # 更新最后登录时间
@@ -103,11 +84,7 @@ class AuthService:
             refresh_token=refresh_token,
             token_type="Bearer",
             expires_in=access_lifetime * 60,
-            user={
-                "user_id": str(user.id),
-                "username": user.username,
-                "email": user.email,
-            },
+            user={"user_id": str(user.id), "username": user.username, "email": user.email},
         )
 
     async def refresh_access_token(self, refresh_dto: RefreshTokenDTO) -> TokenResponseDTO:
@@ -131,10 +108,7 @@ class AuthService:
 
         # 生成新的访问Token
         access_token, access_expire = jwt_manager.create_access_token(
-            user_id=user_id,
-            username=username,
-            roles=role_codes,
-            permissions=permission_codes,
+            user_id=user_id, username=username, roles=role_codes, permissions=permission_codes
         )
 
         # 计算过期时间（秒）
@@ -145,21 +119,11 @@ class AuthService:
         # 获取用户信息
         try:
             user = await User.objects.aget(id=user_id)
-            user_info = {
-                "user_id": str(user.id),
-                "username": user.username,
-                "email": user.email,
-            }
+            user_info = {"user_id": str(user.id), "username": user.username, "email": user.email}
         except User.DoesNotExist:
             user_info = None
 
-        return TokenResponseDTO(
-            access_token=access_token,
-            refresh_token=None,
-            token_type="Bearer",
-            expires_in=access_lifetime * 60,
-            user=user_info,
-        )
+        return TokenResponseDTO(access_token=access_token, refresh_token=None, token_type="Bearer", expires_in=access_lifetime * 60, user=user_info)
 
     async def logout(self, access_token: str) -> bool:
         """
@@ -189,32 +153,15 @@ class AuthService:
         return True, payload
 
     async def _save_refresh_token(
-        self,
-        user_id: str,
-        token: str,
-        jti: str | None,
-        expires_at: datetime,
-        ip_address: str | None = None,
-        device_info: str | None = None,
+        self, user_id: str, token: str, jti: str | None, expires_at: datetime, ip_address: str | None = None, device_info: str | None = None
     ) -> None:
         """保存刷新Token"""
         await RefreshToken.objects.acreate(
-            user_id=user_id,
-            token=token,
-            jti=jti,
-            expires_at=expires_at,
-            ip_address=ip_address,
-            device_info=device_info,
+            user_id=user_id, token=token, jti=jti, expires_at=expires_at, ip_address=ip_address, device_info=device_info
         )
 
     async def _create_login_log(
-        self,
-        user: User,
-        ip_address: str | None,
-        user_agent: str | None,
-        device_info: str | None,
-        status: bool,
-        fail_reason: str | None = None,
+        self, user: User, ip_address: str | None, user_agent: str | None, device_info: str | None, status: bool, fail_reason: str | None = None
     ) -> None:
         """创建登录日志"""
         await LoginLog.objects.acreate(

@@ -5,14 +5,7 @@ RBAC Service - 角色权限业务逻辑处理
 
 import uuid
 
-from src.application.dto.rbac import (
-    AssignRoleDTO,
-    PermissionResponseDTO,
-    RoleCreateDTO,
-    RoleResponseDTO,
-    RoleUpdateDTO,
-    UserRolesResponseDTO,
-)
+from src.application.dto.rbac import AssignRoleDTO, PermissionResponseDTO, RoleCreateDTO, RoleResponseDTO, RoleUpdateDTO, UserRolesResponseDTO
 from src.infrastructure.cache.cache_manager import cache_manager
 from src.infrastructure.persistence.models.rbac_models import Permission, Role, UserRole
 from src.infrastructure.persistence.models.user_models import User
@@ -30,9 +23,7 @@ class RBACService:
 
     # ========== 角色管理 ==========
 
-    async def create_role(
-        self, role_dto: RoleCreateDTO, _created_by: str = None
-    ) -> RoleResponseDTO:
+    async def create_role(self, role_dto: RoleCreateDTO, _created_by: str = None) -> RoleResponseDTO:
         """创建角色"""
         # 检查角色代码是否存在
         existing = await self.rbac_repo.get_role_by_code(role_dto.code)
@@ -40,12 +31,7 @@ class RBACService:
             raise ValueError(f"角色代码 {role_dto.code} 已存在")
 
         # 创建角色
-        role = Role(
-            id=uuid.uuid4(),
-            name=role_dto.name,
-            code=role_dto.code,
-            description=role_dto.description,
-        )
+        role = Role(id=uuid.uuid4(), name=role_dto.name, code=role_dto.code, description=role_dto.description)
         await role.asave()
 
         # 添加权限
@@ -112,9 +98,7 @@ class RBACService:
 
     # ========== 权限管理 ==========
 
-    async def create_permission(
-        self, name: str, code: str, description: str = ""
-    ) -> PermissionResponseDTO:
+    async def create_permission(self, name: str, code: str, description: str = "") -> PermissionResponseDTO:
         """创建权限"""
         # 检查权限代码是否存在
         existing = await self.rbac_repo.get_permission_by_code(code)
@@ -123,14 +107,7 @@ class RBACService:
 
         resource, action = code.split(":") if ":" in code else (code, "")
 
-        permission = Permission(
-            id=uuid.uuid4(),
-            name=name,
-            code=code,
-            resource=resource,
-            action=action,
-            description=description,
-        )
+        permission = Permission(id=uuid.uuid4(), name=name, code=code, resource=resource, action=action, description=description)
         await permission.asave()
 
         return self._to_permission_response(permission)
@@ -142,9 +119,7 @@ class RBACService:
             return None
         return self._to_permission_response(permission)
 
-    async def list_permissions(
-        self, is_active: bool = None, resource: str = None
-    ) -> list[PermissionResponseDTO]:
+    async def list_permissions(self, is_active: bool = None, resource: str = None) -> list[PermissionResponseDTO]:
         """获取权限列表"""
         permissions = await self.rbac_repo.list_permissions(is_active, resource)
         return [await self._to_permission_response(perm) for perm in permissions]
@@ -157,11 +132,7 @@ class RBACService:
         for perm_data in SYSTEM_PERMISSIONS:
             existing = await self.rbac_repo.get_permission_by_code(perm_data["code"])
             if not existing:
-                await self.create_permission(
-                    name=perm_data["name"],
-                    code=perm_data["code"],
-                    description=perm_data.get("description", ""),
-                )
+                await self.create_permission(name=perm_data["name"], code=perm_data["code"], description=perm_data.get("description", ""))
                 created.append(perm_data["code"])
 
         return await self.list_permissions()
@@ -185,18 +156,12 @@ class RBACService:
             raise ValueError("角色已被停用")
 
         # 检查是否已分配
-        exists = await UserRole.objects.filter(
-            user_id=assign_dto.user_id, role_id=assign_dto.role_id
-        ).aexists()
+        exists = await UserRole.objects.filter(user_id=assign_dto.user_id, role_id=assign_dto.role_id).aexists()
         if exists:
             raise ValueError("用户已拥有此角色")
 
         # 分配角色
-        await UserRole.objects.acreate(
-            user=user,
-            role=role,
-            assigned_by_id=assigned_by,
-        )
+        await UserRole.objects.acreate(user=user, role=role, assigned_by_id=assigned_by)
 
         # 清除用户权限缓存
         cache_manager.delete_permissions_cache(assign_dto.user_id)
@@ -224,11 +189,7 @@ class RBACService:
         permissions = await self.rbac_repo.get_user_permissions(user_id)
         permission_codes = [perm.code for perm in permissions]
 
-        return UserRolesResponseDTO(
-            user_id=user_id,
-            roles=role_responses,
-            permissions=permission_codes,
-        )
+        return UserRolesResponseDTO(user_id=user_id, roles=role_responses, permissions=permission_codes)
 
     async def check_user_permission(self, user_id: str, permission_code: str) -> bool:
         """检查用户是否拥有指定权限"""

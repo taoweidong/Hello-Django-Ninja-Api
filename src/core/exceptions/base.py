@@ -33,7 +33,4 @@ class BaseAPIError(Exception):
         返回:
             包含消息和代码的字典
         """
-        return {
-            "message": self.message,
-            "code": self.code,
-        }
+        return {"message": self.message, "code": self.code}

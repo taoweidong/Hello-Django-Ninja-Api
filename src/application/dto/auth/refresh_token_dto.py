@@ -12,9 +12,7 @@ class RefreshTokenDTO(BaseModel):
     refresh_token: str = Field(..., description="刷新令牌")
 
     class Config:
-        json_schema_extra = {
-            "example": {"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
-        }
+        json_schema_extra = {"example": {"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}}
 
 
 # 重建模型以解决循环引用问题

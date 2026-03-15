@@ -100,9 +100,7 @@ class SecurityRepository(ABC):
     # ========== 限流记录 ==========
 
     @abstractmethod
-    async def get_or_create_rate_limit_record(
-        self, key: str, endpoint: str, method: str, window_seconds: int
-    ) -> RateLimitRecordEntity:
+    async def get_or_create_rate_limit_record(self, key: str, endpoint: str, method: str, window_seconds: int) -> RateLimitRecordEntity:
         """获取或创建限流记录"""
         pass
 

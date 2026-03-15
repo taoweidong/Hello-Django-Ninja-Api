@@ -27,14 +27,7 @@ class MenuMetaCreateDTO(BaseModel):
     description: str | None = Field(None, max_length=256, description="描述")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "title": "用户管理",
-                "icon": "user",
-                "is_show_menu": True,
-                "is_keepalive": True,
-            }
-        }
+        json_schema_extra = {"example": {"title": "用户管理", "icon": "user", "is_show_menu": True, "is_keepalive": True}}
 
 
 class MenuMetaResponseDTO(BaseModel):
@@ -85,12 +78,7 @@ class MenuCreateDTO(BaseModel):
                 "method": None,
                 "description": "用户管理菜单",
                 "parent_id": None,
-                "meta": {
-                    "title": "用户管理",
-                    "icon": "user",
-                    "is_show_menu": True,
-                    "is_keepalive": True,
-                },
+                "meta": {"title": "用户管理", "icon": "user", "is_show_menu": True, "is_keepalive": True},
             }
         }
 
@@ -109,13 +97,7 @@ class MenuUpdateDTO(BaseModel):
     parent_id: str | None = Field(None, description="父级菜单ID")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "用户管理（更新）",
-                "rank": 2,
-                "description": "用户管理菜单（更新）",
-            }
-        }
+        json_schema_extra = {"example": {"name": "用户管理（更新）", "rank": 2, "description": "用户管理菜单（更新）"}}
 
 
 class MenuResponseDTO(BaseModel):

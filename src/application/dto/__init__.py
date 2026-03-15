@@ -3,19 +3,8 @@ DTO模块
 DTO Module - 数据传输对象
 """
 
-from src.application.dto.auth import (
-    LoginLogDTO,
-    RefreshTokenDTO,
-    TokenResponseDTO,
-)
-from src.application.dto.rbac import (
-    AssignRoleDTO,
-    PermissionResponseDTO,
-    RoleCreateDTO,
-    RoleResponseDTO,
-    RoleUpdateDTO,
-    UserRolesResponseDTO,
-)
+from src.application.dto.auth import LoginLogDTO, RefreshTokenDTO, TokenResponseDTO
+from src.application.dto.rbac import AssignRoleDTO, PermissionResponseDTO, RoleCreateDTO, RoleResponseDTO, RoleUpdateDTO, UserRolesResponseDTO
 from src.application.dto.security import (
     IPBlacklistDTO,
     IPBlacklistResponseDTO,
@@ -25,13 +14,7 @@ from src.application.dto.security import (
     RateLimitRuleResponseDTO,
     RateLimitStatusDTO,
 )
-from src.application.dto.user import (
-    ChangePasswordDTO,
-    UserCreateDTO,
-    UserLoginDTO,
-    UserResponseDTO,
-    UserUpdateDTO,
-)
+from src.application.dto.user import ChangePasswordDTO, UserCreateDTO, UserLoginDTO, UserResponseDTO, UserUpdateDTO
 
 __all__ = [
     # Auth DTOs

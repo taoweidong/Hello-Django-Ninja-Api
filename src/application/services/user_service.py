@@ -3,8 +3,6 @@
 User Service - 用户业务逻辑处理
 """
 
-import uuid
-
 from django.contrib.auth.hashers import make_password
 
 from src.application.dto.user import UserCreateDTO, UserResponseDTO, UserUpdateDTO
@@ -107,9 +105,7 @@ class UserService:
             cache_manager.delete_roles_cache(user_id)
         return result
 
-    async def list_users(
-        self, page: int = 1, page_size: int = 10
-    ) -> tuple[list[UserResponseDTO], int]:
+    async def list_users(self, page: int = 1, page_size: int = 10) -> tuple[list[UserResponseDTO], int]:
         """获取用户列表"""
         users = await self.user_repo.list_all(page, page_size)
         total = await self.user_repo.count()
@@ -122,6 +118,7 @@ class UserService:
             raise ValueError("用户不存在")
 
         from django.contrib.auth.hashers import check_password
+
         if not check_password(old_password, user.password):
             raise ValueError("原密码不正确")
 
@@ -139,6 +136,7 @@ class UserService:
             raise ValueError("用户已被停用")
 
         from django.contrib.auth.hashers import check_password
+
         if not check_password(password, user.password):
             return None
 
@@ -153,7 +151,7 @@ class UserService:
     def _to_response_dto(self, user) -> UserResponseDTO:
         """转换为响应DTO (支持User模型和UserEntity)"""
         # 处理 UserEntity 对象
-        if hasattr(user, 'user_id'):
+        if hasattr(user, "user_id"):
             return UserResponseDTO(
                 user_id=user.user_id,
                 username=user.username,
@@ -182,7 +180,7 @@ class UserService:
                 is_superuser=user.is_superuser,
                 avatar=user.avatar,
                 phone=user.phone,
-                bio=getattr(user, 'bio', None),
+                bio=getattr(user, "bio", None),
                 date_joined=user.date_joined,
                 last_login=user.last_login,
             )

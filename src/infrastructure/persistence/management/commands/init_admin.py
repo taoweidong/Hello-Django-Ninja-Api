@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     help = "创建初始管理员账号"
 
-    def handle(self, *args, **options):
+    def handle(self, *_args, **_options):
         """执行命令"""
         from src.infrastructure.persistence.models.user_models import User
 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
             return
 
         # 创建超级用户
-        user = User.objects.create_superuser(username=username, email=email, password=password)
+        User.objects.create_superuser(username=username, email=email, password=password)
 
         self.stdout.write(self.style.SUCCESS("初始管理员账号创建成功！"))
         self.stdout.write(f"  用户名: {username}")

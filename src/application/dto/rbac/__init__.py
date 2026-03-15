@@ -10,11 +10,4 @@ from src.application.dto.rbac.role_response_dto import RoleResponseDTO
 from src.application.dto.rbac.role_update_dto import RoleUpdateDTO
 from src.application.dto.rbac.user_roles_response_dto import UserRolesResponseDTO
 
-__all__ = [
-    "RoleCreateDTO",
-    "RoleUpdateDTO",
-    "RoleResponseDTO",
-    "PermissionResponseDTO",
-    "AssignRoleDTO",
-    "UserRolesResponseDTO",
-]
+__all__ = ["RoleCreateDTO", "RoleUpdateDTO", "RoleResponseDTO", "PermissionResponseDTO", "AssignRoleDTO", "UserRolesResponseDTO"]

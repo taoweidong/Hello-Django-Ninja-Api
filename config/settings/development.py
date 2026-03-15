@@ -8,12 +8,7 @@ DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # 开发环境使用SQLite
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "sql" / "db.sqlite3",
-    }
-}
+DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "sql" / "db.sqlite3"}}
 
 # 开发环境日志级别
 LOGGING["root"]["level"] = "DEBUG"

@@ -19,13 +19,7 @@ class RoleCreateDTO(BaseModel):
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "name": "管理员",
-                "code": "ADMIN",
-                "is_active": True,
-                "description": "系统管理员",
-                "menu_ids": ["menu_id_1", "menu_id_2"],
-            }
+            "example": {"name": "管理员", "code": "ADMIN", "is_active": True, "description": "系统管理员", "menu_ids": ["menu_id_1", "menu_id_2"]}
         }
 
 
@@ -38,12 +32,7 @@ class RoleUpdateDTO(BaseModel):
     description: str | None = Field(None, max_length=256, description="描述")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "超级管理员",
-                "description": "系统超级管理员（更新）",
-            }
-        }
+        json_schema_extra = {"example": {"name": "超级管理员", "description": "系统超级管理员（更新）"}}
 
 
 class RoleAssignMenuDTO(BaseModel):
@@ -52,11 +41,7 @@ class RoleAssignMenuDTO(BaseModel):
     menu_ids: list[str] = Field(..., description="菜单ID列表")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "menu_ids": ["menu_id_1", "menu_id_2", "menu_id_3"],
-            }
-        }
+        json_schema_extra = {"example": {"menu_ids": ["menu_id_1", "menu_id_2", "menu_id_3"]}}
 
 
 class RoleResponseDTO(BaseModel):

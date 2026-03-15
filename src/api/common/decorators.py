@@ -173,9 +173,7 @@ def validate_exists(get_entity_func: Callable) -> Callable:
         async def wrapper(request, *args, **kwargs) -> Any:
             # 从kwargs中提取ID参数（假设第一个参数是ID）
             # 这里需要根据实际情况调整
-            entity_id = (
-                kwargs.get("user_id") or kwargs.get("role_id") or kwargs.get("permission_id")
-            )
+            entity_id = kwargs.get("user_id") or kwargs.get("role_id") or kwargs.get("permission_id")
 
             if entity_id:
                 entity = await get_entity_func(entity_id)

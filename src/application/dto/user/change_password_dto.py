@@ -13,9 +13,7 @@ class ChangePasswordDTO(BaseModel):
     new_password: str = Field(..., min_length=6, max_length=100, description="新密码")
 
     class Config:
-        json_schema_extra = {
-            "example": {"old_password": "old_password123", "new_password": "new_password123"}
-        }
+        json_schema_extra = {"example": {"old_password": "old_password123", "new_password": "new_password123"}}
 
 
 # 重建模型以解决循环引用问题

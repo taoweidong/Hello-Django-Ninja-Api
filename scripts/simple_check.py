@@ -1,4 +1,5 @@
 """简单代码检查"""
+
 import os
 import subprocess
 
@@ -13,7 +14,7 @@ result = subprocess.run(
     capture_output=True,
     text=True,
     encoding="utf-8",
-    errors="ignore"
+    errors="ignore",
 )
 
 if result.returncode == 0:
@@ -26,13 +27,7 @@ print("\n" + "=" * 60)
 print("MyPy 类型检查")
 print("=" * 60)
 
-result2 = subprocess.run(
-    [".venv/Scripts/python.exe", "-m", "mypy", "src/"],
-    capture_output=True,
-    text=True,
-    encoding="utf-8",
-    errors="ignore"
-)
+result2 = subprocess.run([".venv/Scripts/python.exe", "-m", "mypy", "src/"], capture_output=True, text=True, encoding="utf-8", errors="ignore")
 
 if result2.returncode == 0:
     print("[OK] MyPy 检查通过！")

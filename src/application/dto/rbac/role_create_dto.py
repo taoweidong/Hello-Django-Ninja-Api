@@ -16,12 +16,7 @@ class RoleCreateDTO(BaseModel):
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "name": "管理员",
-                "code": "admin",
-                "description": "系统管理员",
-                "permissions": ["user:read", "user:write", "user:delete"],
-            }
+            "example": {"name": "管理员", "code": "admin", "description": "系统管理员", "permissions": ["user:read", "user:write", "user:delete"]}
         }
 
 

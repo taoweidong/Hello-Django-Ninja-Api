@@ -169,9 +169,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
         except Permission.DoesNotExist:
             return False
 
-    async def list_permissions(
-        self, is_active: bool = None, resource: str = None
-    ) -> list[PermissionEntity]:
+    async def list_permissions(self, is_active: bool = None, resource: str = None) -> list[PermissionEntity]:
         """获取权限列表"""
         queryset = Permission.objects.all()
         if is_active is not None:
@@ -205,11 +203,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
     async def get_user_permissions(self, user_id: str) -> list[PermissionEntity]:
         """获取用户的所有权限"""
-        user_roles = [
-            ur async for ur in UserRole.objects.filter(user_id=user_id)
-            .select_related("role")
-            .prefetch_related("role__permissions")
-        ]
+        user_roles = [ur async for ur in UserRole.objects.filter(user_id=user_id).select_related("role").prefetch_related("role__permissions")]
 
         all_permissions = set()
         for ur in user_roles:
@@ -228,11 +222,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
     async def has_permission(self, user_id: str, permission_code: str) -> bool:
         """检查用户是否拥有指定权限"""
-        user_roles = [
-            ur async for ur in UserRole.objects.filter(user_id=user_id)
-            .select_related("role")
-            .prefetch_related("role__permissions")
-        ]
+        user_roles = [ur async for ur in UserRole.objects.filter(user_id=user_id).select_related("role").prefetch_related("role__permissions")]
 
         for ur in user_roles:
             role = ur.role

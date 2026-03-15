@@ -24,9 +24,7 @@ def get_logger(name: str = None) -> logging.Logger:
     logger.setLevel(getattr(logging, log_level.upper()))
 
     # 创建日志格式
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
     # 控制台处理器
     console_handler = logging.StreamHandler()
@@ -108,17 +106,9 @@ def log_request(request, response=None, error=None):
         api_logger.info(f"API Request: {log_data}")
 
 
-def log_auth_event(
-    event_type: str, user_id: str = None, ip: str = None, success: bool = True, message: str = None
-):
+def log_auth_event(event_type: str, user_id: str = None, ip: str = None, success: bool = True, message: str = None):
     """记录认证事件"""
-    log_data = {
-        "event_type": event_type,
-        "success": success,
-        "user_id": user_id,
-        "ip": ip,
-        "message": message,
-    }
+    log_data = {"event_type": event_type, "success": success, "user_id": user_id, "ip": ip, "message": message}
 
     if success:
         auth_logger.info(f"Auth Event: {log_data}")
@@ -128,10 +118,6 @@ def log_auth_event(
 
 def log_security_event(event_type: str, ip: str = None, details: str = None):
     """记录安全事件"""
-    log_data = {
-        "event_type": event_type,
-        "ip": ip,
-        "details": details,
-    }
+    log_data = {"event_type": event_type, "ip": ip, "details": details}
 
     security_logger.warning(f"Security Event: {log_data}")

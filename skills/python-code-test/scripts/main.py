@@ -33,13 +33,7 @@ def search_code(keywords: list, project_root: Path) -> list:
     py_files = list(project_root.glob("**/*.py"))
     py_files = [f for f in py_files if ".opencode" not in str(f) and "skill" not in f.name.lower()]
 
-    priority_score = {
-        "def ": 3,
-        "class ": 3,
-        "async def ": 3,
-        "import ": 1,
-        "from ": 1,
-    }
+    priority_score = {"def ": 3, "class ": 3, "async def ": 3, "import ": 1, "from ": 1}
 
     for py_file in py_files:
         try:
@@ -56,13 +50,7 @@ def search_code(keywords: list, project_root: Path) -> list:
                             if kw_prefix in line_stripped:
                                 priority = p
                                 break
-                        results.append({
-                            "file": str(py_file),
-                            "line": i,
-                            "content": line_stripped,
-                            "keyword": kw,
-                            "priority": priority
-                        })
+                        results.append({"file": str(py_file), "line": i, "content": line_stripped, "keyword": kw, "priority": priority})
                         break
         except Exception:
             continue
@@ -74,14 +62,7 @@ def search_code(keywords: list, project_root: Path) -> list:
 def extract_function_class(code: str, target_name: str) -> dict:
     """提取目标类或函数的完整代码"""
     lines = code.split("\n")
-    result = {
-        "name": target_name,
-        "type": "function",
-        "code": [],
-        "start_line": 0,
-        "end_line": 0,
-        "file": ""
-    }
+    result = {"name": target_name, "type": "function", "code": [], "start_line": 0, "end_line": 0, "file": ""}
 
     class_stack = []
 
@@ -89,15 +70,11 @@ def extract_function_class(code: str, target_name: str) -> dict:
         line_stripped = line.strip()
 
         if line_stripped.startswith("class "):
-            class_match = re.match(r'class (\w+)', line_stripped)
+            class_match = re.match(r"class (\w+)", line_stripped)
             if class_match:
-                class_stack.append({
-                    "name": class_match.group(1),
-                    "indent": len(line) - len(line.lstrip())
-                })
+                class_stack.append({"name": class_match.group(1), "indent": len(line) - len(line.lstrip())})
 
         if f"def {target_name}(" in line:
-            in_target = True
             result["type"] = "method" if class_stack else "function"
             result["start_line"] = i + 1
             result["class_name"] = class_stack[-1]["name"] if class_stack else None
@@ -143,7 +120,7 @@ def generate_test_case(target_info: dict, requirement: str) -> dict:
         "target": target_info,
         "ground_truth_source": "auto" if is_mathematical_function(requirement) else "external",
         "test_code": "",
-        "expected_behavior": ""
+        "expected_behavior": "",
     }
 
     if is_mathematical_function(requirement):
@@ -158,9 +135,26 @@ def generate_test_case(target_info: dict, requirement: str) -> dict:
 
 def is_mathematical_function(requirement: str) -> bool:
     """判断是否为数学分析类功能"""
-    math_keywords = ["聚类", "cluster", "插值", "interpolat", "回归", "regress",
-                     "统计", "statistic", "计算", "calculat", "优化", "optimiz",
-                     "矩阵", "matrix", "排序", "sort", "搜索", "search"]
+    math_keywords = [
+        "聚类",
+        "cluster",
+        "插值",
+        "interpolat",
+        "回归",
+        "regress",
+        "统计",
+        "statistic",
+        "计算",
+        "calculat",
+        "优化",
+        "optimiz",
+        "矩阵",
+        "matrix",
+        "排序",
+        "sort",
+        "搜索",
+        "search",
+    ]
     return any(kw in requirement.lower() for kw in math_keywords)
 
 
@@ -168,7 +162,6 @@ def generate_math_test(target_info: dict, requirement: str) -> str:
     """生成数学验证测试"""
     target_name = target_info.get("name", "unknown")
     target_type = target_info.get("type", "function")
-    code_lines = target_info.get("code", [])
     class_name = target_info.get("class_name")
     file_path = target_info.get("file", "")
 
@@ -194,25 +187,25 @@ def generate_test_data():
     """生成带已知聚类标签的测试数据并保存"""
     np.random.seed(42)
     n_per_cluster = 20
-    
+
     centers = np.array([
         [1.0, 100, 10],   # 聚类1中心
         [3.0, 300, 30],   # 聚类2中心
         [5.0, 400, 40],   # 聚类3中心
     ])
-    
+
     data_list = []
     labels = []
-    
+
     for i, center in enumerate(centers):
         for _ in range(n_per_cluster):
             point = center + np.random.normal(0, 0.3, size=3)
             data_list.append(point)
             labels.append(i)
-    
+
     data = pd.DataFrame(data_list, columns=['TiO2', 'Zr', 'Nb'])
     data['true_label'] = labels
-    
+
     data.to_csv(DATA_PATH, index=False)
     print(f"测试数据已保存: {{DATA_PATH}}")
     return data
@@ -235,26 +228,26 @@ class Test{target_name.capitalize()}(unittest.TestCase):
             [3.0, 300, 30],
             [5.0, 400, 40],
         ])
-    
+
     def test_clustering_correctness(self):
         """验证聚类结果的正确性"""
         stats = {class_name}(self.data[['TiO2', 'Zr', 'Nb']])
-        
+
         result = stats.cluster_analysis(
             elements=['TiO2', 'Zr', 'Nb'],
             n_clusters=3,
             method='kmeans'
         )
-        
+
         self.assertIn('cluster_centers', result)
         cluster_centers = np.array(result['cluster_centers'])
-        
+
         for true_center in self.centers:
             distances = np.linalg.norm(cluster_centers - true_center, axis=1)
             min_dist = np.min(distances)
-            self.assertLess(min_dist, 1.0, 
+            self.assertLess(min_dist, 1.0,
                 f"聚类中心距离过大: {{true_center}}, 最近中心距离: {{min_dist}}")
-    
+
     def test_cluster_stability(self):
         """验证聚类稳定性（多次运行结果一致）"""
         stats1 = {class_name}(self.data[['TiO2', 'Zr', 'Nb']])
@@ -263,30 +256,30 @@ class Test{target_name.capitalize()}(unittest.TestCase):
             n_clusters=3,
             method='kmeans'
         )
-        
+
         stats2 = {class_name}(self.data[['TiO2', 'Zr', 'Nb']])
         result2 = stats2.cluster_analysis(
             elements=['TiO2', 'Zr', 'Nb'],
             n_clusters=3,
             method='kmeans'
         )
-        
+
         centers1 = np.array(result1['cluster_centers'])
         centers2 = np.array(result2['cluster_centers'])
-        
+
         distances = np.linalg.norm(centers1 - centers2, axis=1)
         self.assertLess(np.max(distances), 0.1, "聚类结果不稳定")
-    
+
     def test_element_subset(self):
         """测试元素子集聚类"""
         stats = {class_name}(self.data[['TiO2', 'Zr']])
-        
+
         result = stats.cluster_analysis(
             elements=['TiO2', 'Zr'],
             n_clusters=3,
             method='kmeans'
         )
-        
+
         self.assertEqual(result['n_clusters'], 3)
 
 if __name__ == "__main__":
@@ -309,10 +302,10 @@ class Test{target_name.capitalize()}(unittest.TestCase):
             'A': [1, 2, 3, 4, 5],
             'B': [2, 4, 6, 8, 10]
         }})
-        
+
         # 执行测试
         # {test_invocation}
-        
+
         # 验证结果
         # self.assertIsNotNone(result)
         pass
@@ -321,7 +314,7 @@ class Test{target_name.capitalize()}(unittest.TestCase):
         """边界情况测试"""
         # 空输入
         empty_data = pd.DataFrame()
-        
+
         # 验证边界情况处理
         pass
 
@@ -331,7 +324,7 @@ if __name__ == "__main__":
     return test_code
 
 
-def generate_external_test(target_info: dict, requirement: str) -> str:
+def generate_external_test(target_info: dict, _requirement: str) -> str:
     """生成外部数据测试"""
     target_name = target_info.get("name", "unknown")
     test_code = f'''import unittest
@@ -344,16 +337,16 @@ class Test{target_name.capitalize()}(unittest.TestCase):
         """下载或加载外部测试数据"""
         # 数据文件路径
         cls.data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "references", "test_data.csv")
-        
+
         # 如果数据不存在，提示用户下载
         # 或者使用以下方式下载:
         # import urllib.request
         # urllib.request.urlretrieve("url", cls.data_path)
-        
+
         if not os.path.exists(cls.data_path):
             print("请提供测试数据文件: {{cls.data_path}}")
             raise FileNotFoundError("测试数据文件不存在")
-    
+
     def test_with_real_data(self):
         """使用真实数据测试"""
         import pandas as pd
@@ -389,16 +382,11 @@ def run_test(test_file: Path) -> dict:
         "error": None,
         "version": 0,
         "needs_fix": False,
-        "fix_action": None
+        "fix_action": None,
     }
 
     try:
-        proc = subprocess.run(
-            ["python", "-m", "pytest", str(test_file), "-v", "--tb=short"],
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
+        proc = subprocess.run(["python", "-m", "pytest", str(test_file), "-v", "--tb=short"], capture_output=True, text=True, timeout=60)
         result["output"] = proc.stdout + proc.stderr
         result["passed"] = proc.returncode == 0
 
@@ -462,7 +450,7 @@ def get_next_version() -> int:
     return max(versions) + 1 if versions else 1
 
 
-def analyze_and_fix(error_msg: str, code_info: dict) -> str:
+def analyze_and_fix(error_msg: str, _code_info: dict) -> str:
     """分析错误并尝试修复代码"""
     fix_suggestions = []
 
@@ -482,18 +470,18 @@ def analyze_and_fix(error_msg: str, code_info: dict) -> str:
     return "\n".join(fix_suggestions) if fix_suggestions else "需要手动分析错误原因"
 
 
-def update_project_code(original_file: Path, code_info: dict, version: int):
+def update_project_code(original_file: Path, code_info: dict, _version: int):
     """将修复后的代码更新到项目"""
     backup_file = original_file.with_suffix(original_file.suffix + ".bak")
 
     try:
         import shutil
+
         shutil.copy(original_file, backup_file)
 
         content = original_file.read_text(encoding="utf-8")
         lines = content.split("\n")
 
-        target_name = code_info.get("name", "")
         start = code_info.get("start_line", 1) - 1
         end = code_info.get("end_line", len(lines))
 
@@ -536,7 +524,7 @@ def main():
     code_content = target_file.read_text(encoding="utf-8")
 
     target_keyword = target.get("keyword", keywords[0])
-    match = re.search(r'(def|class)\s+(\w+)', target["content"])
+    match = re.search(r"(def|class)\s+(\w+)", target["content"])
     if match:
         target_keyword = match.group(2)
 

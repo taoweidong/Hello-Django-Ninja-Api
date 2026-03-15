@@ -21,9 +21,7 @@ class BaseDTO(BaseModel):
         """Pydantic配置"""
 
         from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class BasePaginatedResponse(BaseModel, Generic[T]):
@@ -56,13 +54,7 @@ class BasePaginatedResponse(BaseModel, Generic[T]):
         from_attributes = True
 
     @classmethod
-    def create(
-        cls,
-        items: list[T],
-        total: int,
-        page: int,
-        page_size: int,
-    ) -> "BasePaginatedResponse[T]":
+    def create(cls, items: list[T], total: int, page: int, page_size: int) -> "BasePaginatedResponse[T]":
         """
         创建分页响应
 
@@ -78,14 +70,7 @@ class BasePaginatedResponse(BaseModel, Generic[T]):
         has_next = page * page_size < total
         has_prev = page > 1
 
-        return cls(
-            items=items,
-            total=total,
-            page=page,
-            page_size=page_size,
-            has_next=has_next,
-            has_prev=has_prev,
-        )
+        return cls(items=items, total=total, page=page, page_size=page_size, has_next=has_next, has_prev=has_prev)
 
 
 class BaseCreateDTO(BaseDTO):

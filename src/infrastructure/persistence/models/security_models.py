@@ -23,12 +23,7 @@ class IPBlacklist(models.Model):
     expires_at = models.DateTimeField(blank=True, null=True, verbose_name="过期时间")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_blacklists",
-        verbose_name="创建者",
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_blacklists", verbose_name="创建者"
     )
 
     class Meta:
@@ -61,12 +56,7 @@ class IPWhitelist(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_whitelists",
-        verbose_name="创建者",
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_whitelists", verbose_name="创建者"
     )
 
     class Meta:
@@ -90,29 +80,13 @@ class RateLimitRule(models.Model):
     endpoint = models.CharField(max_length=255, db_index=True, verbose_name="API端点")
     method = models.CharField(
         max_length=10,
-        choices=[
-            ("GET", "GET"),
-            ("POST", "POST"),
-            ("PUT", "PUT"),
-            ("PATCH", "PATCH"),
-            ("DELETE", "DELETE"),
-            ("*", "ALL"),
-        ],
+        choices=[("GET", "GET"), ("POST", "POST"), ("PUT", "PUT"), ("PATCH", "PATCH"), ("DELETE", "DELETE"), ("*", "ALL")],
         default="*",
         verbose_name="HTTP方法",
     )
     rate = models.PositiveIntegerField(default=60, verbose_name="允许的请求次数")
     period = models.PositiveIntegerField(default=60, verbose_name="时间周期(秒)")
-    scope = models.CharField(
-        max_length=20,
-        choices=[
-            ("ip", "IP地址"),
-            ("user", "用户"),
-            ("global", "全局"),
-        ],
-        default="ip",
-        verbose_name="限流范围",
-    )
+    scope = models.CharField(max_length=20, choices=[("ip", "IP地址"), ("user", "用户"), ("global", "全局")], default="ip", verbose_name="限流范围")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     description = models.TextField(blank=True, null=True, verbose_name="描述")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
@@ -153,9 +127,7 @@ class RateLimitRecord(models.Model):
         db_table = "rate_limit_records"
         verbose_name = "限流记录"
         verbose_name_plural = "限流记录"
-        indexes = [
-            models.Index(fields=["key", "endpoint", "method"]),
-        ]
+        indexes = [models.Index(fields=["key", "endpoint", "method"])]
 
     def __str__(self):
         return f"{self.key} - {self.endpoint} - {self.count}"

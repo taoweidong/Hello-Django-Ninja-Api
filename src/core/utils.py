@@ -55,10 +55,7 @@ def mask_email(email: str) -> str:
     if "@" not in email:
         return email
     local, domain = email.split("@")
-    if len(local) <= 2:
-        masked_local = local[0] + "*"
-    else:
-        masked_local = local[0] + "*" * (len(local) - 2) + local[-1]
+    masked_local = local[0] + "*" if len(local) <= 2 else local[0] + "*" * (len(local) - 2) + local[-1]
     return f"{masked_local}@{domain}"
 
 
@@ -72,10 +69,7 @@ def mask_phone(phone: str) -> str:
 def get_client_ip(request) -> str:
     """获取客户端IP"""
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(",")[0]
-    else:
-        ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
+    ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR", "127.0.0.1")
     return ip
 
 
@@ -86,11 +80,7 @@ def get_user_agent(request) -> str:
 
 def parse_user_agent(user_agent: str) -> dict[str, str]:
     """解析用户代理"""
-    result = {
-        "browser": "Unknown",
-        "os": "Unknown",
-        "device": "Unknown",
-    }
+    result = {"browser": "Unknown", "os": "Unknown", "device": "Unknown"}
 
     # 简单解析
     if "Chrome" in user_agent:
@@ -167,13 +157,7 @@ def paginate(items: list, page: int = 1, page_size: int = 10) -> dict[str, Any]:
     start = (page - 1) * page_size
     end = start + page_size
 
-    return {
-        "items": items[start:end],
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-        "total_pages": (total + page_size - 1) // page_size,
-    }
+    return {"items": items[start:end], "total": total, "page": page, "page_size": page_size, "total_pages": (total + page_size - 1) // page_size}
 
 
 def truncate(text: str, length: int = 100, suffix: str = "...") -> str:

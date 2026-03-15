@@ -71,11 +71,7 @@ class AuthDomainService:
         """
         token.revoke()
 
-        blacklist_entry = TokenBlacklistEntity(
-            token_jti=token.token_id,
-            user_id=token.user_id,
-            expires_at=token.expires_at,
-        )
+        blacklist_entry = TokenBlacklistEntity(token_jti=token.token_id, user_id=token.user_id, expires_at=token.expires_at)
 
         self.token_blacklist[token.token_id] = blacklist_entry
         return blacklist_entry
@@ -95,9 +91,7 @@ class AuthDomainService:
 
         return True
 
-    async def refresh_token(
-        self, old_token: TokenEntity, access_token_lifetime: int = 60
-    ) -> TokenEntity:
+    async def refresh_token(self, old_token: TokenEntity, access_token_lifetime: int = 60) -> TokenEntity:
         """
         刷新Token
         """

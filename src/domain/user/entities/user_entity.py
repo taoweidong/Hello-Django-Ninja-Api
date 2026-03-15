@@ -48,14 +48,7 @@ class UserEntity:
         if self.email and "@" not in self.email:
             raise ValueError("邮箱格式不正确")
 
-    def update_profile(
-        self,
-        first_name: str = None,
-        last_name: str = None,
-        phone: str = None,
-        bio: str = None,
-        avatar: str = None,
-    ) -> None:
+    def update_profile(self, first_name: str = None, last_name: str = None, phone: str = None, bio: str = None, avatar: str = None) -> None:
         """更新用户信息的业务逻辑"""
         if first_name is not None:
             self.first_name = first_name

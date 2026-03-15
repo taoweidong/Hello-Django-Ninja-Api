@@ -67,12 +67,7 @@ class ResponseFactory:
         返回:
             包含分页数据的字典
         """
-        return {
-            "items": items,
-            "total": total,
-            "page": page,
-            "page_size": page_size,
-        }
+        return {"items": items, "total": total, "page": page, "page_size": page_size}
 
     @staticmethod
     def success(data: Any = None, message: str = "操作成功") -> dict[str, Any]:

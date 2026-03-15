@@ -54,24 +54,12 @@ class IPLimitMiddleware:
         # 白名单模式
         if self.whitelist_enabled and not self._is_whitelisted(ip):
             logger.warning(f"IP not in whitelist: {ip}")
-            return JsonResponse(
-                {
-                    "error": "IP_BLOCKED",
-                    "message": "IP不在白名单中",
-                },
-                status=403,
-            )
+            return JsonResponse({"error": "IP_BLOCKED", "message": "IP不在白名单中"}, status=403)
 
         # 黑名单模式
         if self.blacklist_enabled and self._is_blacklisted(ip):
             logger.warning(f"IP in blacklist: {ip}")
-            return JsonResponse(
-                {
-                    "error": "IP_BLOCKED",
-                    "message": "IP已被封禁",
-                },
-                status=403,
-            )
+            return JsonResponse({"error": "IP_BLOCKED", "message": "IP已被封禁"}, status=403)
 
         return self.get_response(request)
 
@@ -86,10 +74,7 @@ class IPLimitMiddleware:
             客户端IP地址
         """
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
+        ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR", "127.0.0.1")
         return ip
 
     def _is_whitelisted(self, ip: str) -> bool:

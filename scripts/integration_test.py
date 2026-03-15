@@ -3,10 +3,9 @@
 使用 requests 库对每个接口进行真实测试
 """
 
-import json
 import time
+
 import requests
-from typing import Optional
 
 # 配置
 BASE_URL = "http://127.0.0.1:8000/api"
@@ -26,13 +25,7 @@ def log_test(name: str, success: bool, message: str = ""):
     test_results.append({"name": name, "success": success, "message": message})
 
 
-def make_request(
-    method: str,
-    endpoint: str,
-    data: dict = None,
-    token: str = None,
-    expect_status: int = 200,
-) -> tuple[bool, dict | None]:
+def make_request(method: str, endpoint: str, data: dict = None, token: str = None, expect_status: int = 200) -> tuple[bool, dict | None]:
     """发送HTTP请求"""
     url = f"{BASE_URL}{endpoint}"
     headers = {"Content-Type": "application/json"}
@@ -54,7 +47,7 @@ def make_request(
         if response.status_code == expect_status:
             try:
                 return True, response.json()
-            except:
+            except Exception:
                 return True, {}
         else:
             return False, {"status": response.status_code, "body": response.text[:200]}
@@ -66,10 +59,10 @@ class IntegrationTest:
     """集成测试类"""
 
     def __init__(self):
-        self.access_token: Optional[str] = None
-        self.refresh_token: Optional[str] = None
-        self.user_id: Optional[str] = None
-        self.role_id: Optional[str] = None
+        self.access_token: str | None = None
+        self.refresh_token: str | None = None
+        self.user_id: str | None = None
+        self.role_id: str | None = None
 
     def run_all(self):
         """运行所有测试"""
@@ -130,9 +123,7 @@ class IntegrationTest:
 
         # 3. 刷新Token
         if self.refresh_token:
-            success, data = make_request(
-                "POST", "/v1/auth/refresh", {"refresh_token": self.refresh_token}
-            )
+            success, data = make_request("POST", "/v1/auth/refresh", {"refresh_token": self.refresh_token})
             log_test("刷新Token", success)
 
         # 4. 登出
@@ -163,11 +154,7 @@ class IntegrationTest:
         print("\n--- RBAC测试 ---")
 
         # 1. 创建角色
-        role_data = {
-            "name": f"测试角色_{int(time.time())}",
-            "code": f"test_role_{int(time.time())}",
-            "description": "测试角色描述",
-        }
+        role_data = {"name": f"测试角色_{int(time.time())}", "code": f"test_role_{int(time.time())}", "description": "测试角色描述"}
         success, data = make_request("POST", "/v1/rbac/roles", role_data)
         if success and data:
             self.role_id = data.get("role_id")
@@ -245,9 +232,7 @@ class IntegrationTest:
 
         if failed > 0:
             output.append("\n失败的测试:")
-            for r in test_results:
-                if not r["success"]:
-                    output.append(f"  - {r['name']}: {r['message']}")
+            output.extend(f"  - {r['name']}: {r['message']}" for r in test_results if not r["success"])
 
         output.append("=" * 60)
         result_str = "\n".join(output)

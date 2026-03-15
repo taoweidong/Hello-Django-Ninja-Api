@@ -59,11 +59,7 @@ class RequestLoggingMiddleware:
         duration = time.time() - start_time
 
         # 记录响应信息
-        logger.info(
-            f"Request completed: {method} {path} - "
-            f"Status: {response.status_code} - "
-            f"Duration: {duration:.3f}s"
-        )
+        logger.info(f"Request completed: {method} {path} - Status: {response.status_code} - Duration: {duration:.3f}s")
 
         return response
 
@@ -78,8 +74,5 @@ class RequestLoggingMiddleware:
             客户端IP地址
         """
         x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(",")[0]
-        else:
-            ip = request.META.get("REMOTE_ADDR", "127.0.0.1")
+        ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR", "127.0.0.1")
         return ip

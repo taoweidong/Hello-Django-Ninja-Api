@@ -9,10 +9,4 @@ from src.api.v1.controllers.security_controller import SecurityController
 from src.api.v1.controllers.system_controller import SystemController
 from src.api.v1.controllers.user_controller import UserController
 
-__all__ = [
-    "UserController",
-    "AuthController",
-    "RBACController",
-    "SecurityController",
-    "SystemController",
-]
+__all__ = ["UserController", "AuthController", "RBACController", "SecurityController", "SystemController"]

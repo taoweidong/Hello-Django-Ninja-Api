@@ -32,9 +32,7 @@ class SecurityService:
 
     # ========== IP黑名单管理 ==========
 
-    async def add_to_blacklist(
-        self, dto: IPBlacklistDTO, created_by: str = None
-    ) -> IPBlacklistResponseDTO:
+    async def add_to_blacklist(self, dto: IPBlacklistDTO, created_by: str = None) -> IPBlacklistResponseDTO:
         """添加IP到黑名单"""
         # 检查是否已存在
         existing = await self._repository.get_blacklist_entry(dto.ip_address)
@@ -42,11 +40,7 @@ class SecurityService:
             raise ValueError(f"IP {dto.ip_address} 已在黑名单中")
 
         entity = IPBlacklistEntity(
-            ip_address=dto.ip_address,
-            reason=dto.reason or "",
-            is_permanent=dto.is_permanent,
-            expires_at=dto.expires_at,
-            created_by=created_by,
+            ip_address=dto.ip_address, reason=dto.reason or "", is_permanent=dto.is_permanent, expires_at=dto.expires_at, created_by=created_by
         )
 
         saved_entity = await self._repository.add_to_blacklist(entity)
@@ -70,21 +64,14 @@ class SecurityService:
 
     # ========== IP白名单管理 ==========
 
-    async def add_to_whitelist(
-        self, dto: IPWhitelistDTO, created_by: str = None
-    ) -> IPWhitelistResponseDTO:
+    async def add_to_whitelist(self, dto: IPWhitelistDTO, created_by: str = None) -> IPWhitelistResponseDTO:
         """添加IP到白名单"""
         # 检查是否已存在
         existing = await self._repository.get_whitelist_entry(dto.ip_address)
         if existing and existing.is_active:
             raise ValueError(f"IP {dto.ip_address} 已在白名单中")
 
-        entity = IPWhitelistEntity(
-            ip_address=dto.ip_address,
-            description=dto.description or "",
-            is_active=True,
-            created_by=created_by,
-        )
+        entity = IPWhitelistEntity(ip_address=dto.ip_address, description=dto.description or "", is_active=True, created_by=created_by)
 
         saved_entity = await self._repository.add_to_whitelist(entity)
         return self._to_whitelist_response(saved_entity)
@@ -142,27 +129,18 @@ class SecurityService:
         entities = await self._repository.list_rate_limit_rules()
         return [self._to_rate_limit_response(e) for e in entities]
 
-    async def get_rate_limit_status(
-        self, key: str, endpoint: str, method: str
-    ) -> RateLimitStatusDTO:
+    async def get_rate_limit_status(self, key: str, endpoint: str, method: str) -> RateLimitStatusDTO:
         """获取限流状态"""
         rule = await self._repository.get_rate_limit_rule(endpoint, method)
         if not rule or not rule.is_active:
             return RateLimitStatusDTO(enabled=False, limit=None, remaining=None, reset_at=None)
 
-        record = await self._repository.get_or_create_rate_limit_record(
-            key=key, endpoint=endpoint, method=method, window_seconds=rule.period
-        )
+        record = await self._repository.get_or_create_rate_limit_record(key=key, endpoint=endpoint, method=method, window_seconds=rule.period)
 
         remaining = max(0, rule.rate - record.count)
         reset_at = record.window_start.isoformat() if record.window_start else None
 
-        return RateLimitStatusDTO(
-            enabled=True,
-            limit=rule.rate,
-            remaining=remaining,
-            reset_at=reset_at,
-        )
+        return RateLimitStatusDTO(enabled=True, limit=rule.rate, remaining=remaining, reset_at=reset_at)
 
     # ========== 安全状态 ==========
 

@@ -17,9 +17,7 @@ class IPBlacklistDTO(BaseModel):
     expires_at: datetime | None = Field(None, description="过期时间")
 
     class Config:
-        json_schema_extra = {
-            "example": {"ip_address": "192.168.1.100", "reason": "恶意攻击", "is_permanent": True}
-        }
+        json_schema_extra = {"example": {"ip_address": "192.168.1.100", "reason": "恶意攻击", "is_permanent": True}}
 
 
 # 重建模型以解决循环引用问题

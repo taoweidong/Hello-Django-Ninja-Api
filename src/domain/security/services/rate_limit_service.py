@@ -19,37 +19,18 @@ class RateLimitDomainService:
         self.records: dict[str, RateLimitRecordEntity] = {}
 
     async def create_rate_limit_rule(
-        self,
-        name: str,
-        endpoint: str,
-        method: str = "GET",
-        rate: int = 60,
-        period: int = 60,
-        scope: str = "ip",
-        description: str = "",
+        self, name: str, endpoint: str, method: str = "GET", rate: int = 60, period: int = 60, scope: str = "ip", description: str = ""
     ) -> RateLimitEntity:
         """创建限流规则"""
-        rule = RateLimitEntity(
-            name=name,
-            endpoint=endpoint,
-            method=method,
-            rate=rate,
-            period=period,
-            scope=scope,
-            description=description,
-        )
+        rule = RateLimitEntity(name=name, endpoint=endpoint, method=method, rate=rate, period=period, scope=scope, description=description)
         self.rules[f"{method}:{endpoint}"] = rule
         return rule
 
-    async def get_rate_limit_rule(
-        self, endpoint: str, method: str = "GET"
-    ) -> RateLimitEntity | None:
+    async def get_rate_limit_rule(self, endpoint: str, method: str = "GET") -> RateLimitEntity | None:
         """获取限流规则"""
         return self.rules.get(f"{method}:{endpoint}")
 
-    async def check_rate_limit(
-        self, key: str, endpoint: str, method: str = "GET"
-    ) -> tuple[bool, int]:
+    async def check_rate_limit(self, key: str, endpoint: str, method: str = "GET") -> tuple[bool, int]:
         """
         检查是否超过限流限制
         返回: (是否允许, 剩余次数)
@@ -67,11 +48,7 @@ class RateLimitDomainService:
 
         # 创建新记录
         if not record:
-            record = RateLimitRecordEntity(
-                key=key,
-                endpoint=endpoint,
-                method=method,
-            )
+            record = RateLimitRecordEntity(key=key, endpoint=endpoint, method=method)
             self.records[record_key] = record
 
         # 检查限制
@@ -97,12 +74,7 @@ class RateLimitDomainService:
         remaining = max(0, rule.rate - current_count)
         reset_time = (record.window_start + timedelta(seconds=rule.period)) if record else None
 
-        return {
-            "enabled": True,
-            "limit": rule.rate,
-            "remaining": remaining,
-            "reset_at": reset_time.isoformat() if reset_time else None,
-        }
+        return {"enabled": True, "limit": rule.rate, "remaining": remaining, "reset_at": reset_time.isoformat() if reset_time else None}
 
     async def enable_rule(self, endpoint: str, method: str = "GET") -> bool:
         """启用限流规则"""

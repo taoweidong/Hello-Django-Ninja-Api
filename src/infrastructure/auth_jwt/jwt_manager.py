@@ -23,13 +23,7 @@ class JWTManager:
         self.refresh_token_lifetime = settings.SIMPLE_JWT.get("REFRESH_TOKEN_LIFETIME", 1440)
 
     def create_access_token(
-        self,
-        user_id: str,
-        username: str,
-        roles: list = None,
-        permissions: list = None,
-        org_id: str = None,
-        additional_claims: dict = None,
+        self, user_id: str, username: str, roles: list = None, permissions: list = None, org_id: str = None, additional_claims: dict = None
     ) -> tuple[str, datetime]:
         """
         创建访问令牌
@@ -55,9 +49,7 @@ class JWTManager:
         token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
         return token, expire
 
-    def create_refresh_token(
-        self, user_id: str, username: str, additional_claims: dict = None
-    ) -> tuple[str, datetime]:
+    def create_refresh_token(self, user_id: str, username: str, additional_claims: dict = None) -> tuple[str, datetime]:
         """
         创建刷新令牌
         """
@@ -84,9 +76,7 @@ class JWTManager:
         解码令牌
         """
         try:
-            payload = jwt.decode(
-                token, self.secret_key, algorithms=[self.algorithm], options={"verify_exp": True}
-            )
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm], options={"verify_exp": True})
             return payload
         except jwt.ExpiredSignatureError:
             return None

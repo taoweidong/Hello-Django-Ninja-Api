@@ -66,9 +66,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-            ],
+            ]
         },
-    },
+    }
 ]
 
 # WSGI配置
@@ -121,17 +121,11 @@ CORS_ALLOW_CREDENTIALS = True
 
 # REST Framework配置
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
-    "DEFAULT_RENDERER_CLASSES": [
-        "rest_framework.renderers.JSONRenderer",
-    ],
+    "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
 }
 
 # JWT配置
@@ -155,12 +149,7 @@ REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
 REDIS_DB = os.environ.get("REDIS_DB", "0")
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
-    }
-}
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"}}
 
 # 安全设置
 if not DEBUG:
@@ -176,52 +165,19 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
-            "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
-        },
-        "json": {
-            "format": '{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(module)s", "message": "%(message)s"}',
-        },
+        "verbose": {"format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}", "style": "{"},
+        "simple": {"format": "{levelname} {message}", "style": "{"},
+        "json": {"format": '{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(module)s", "message": "%(message)s"}'},
     },
     "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "app.log",
-            "formatter": "verbose",
-        },
-        "error_file": {
-            "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "error.log",
-            "formatter": "verbose",
-        },
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
+        "file": {"level": "INFO", "class": "logging.FileHandler", "filename": BASE_DIR / "logs" / "app.log", "formatter": "verbose"},
+        "error_file": {"level": "ERROR", "class": "logging.FileHandler", "filename": BASE_DIR / "logs" / "error.log", "formatter": "verbose"},
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
     },
-    "root": {
-        "handlers": ["file", "console"],
-        "level": "INFO",
-    },
+    "root": {"handlers": ["file", "console"], "level": "INFO"},
     "loggers": {
-        "django": {
-            "handlers": ["file", "console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "src": {
-            "handlers": ["file", "console", "error_file"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
+        "django": {"handlers": ["file", "console"], "level": "INFO", "propagate": False},
+        "src": {"handlers": ["file", "console", "error_file"], "level": "DEBUG", "propagate": False},
     },
 }
 

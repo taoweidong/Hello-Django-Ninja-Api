@@ -16,9 +16,7 @@ class UserDomainService:
     def __init__(self, user_repository: UserRepositoryInterface):
         self.user_repository = user_repository
 
-    async def create_user(
-        self, username: str, email: str, password: str, first_name: str = "", last_name: str = ""
-    ) -> UserEntity:
+    async def create_user(self, username: str, email: str, password: str, first_name: str = "", last_name: str = "") -> UserEntity:
         """创建用户领域逻辑"""
         # 检查用户名是否存在
         if await self.user_repository.exists_by_username(username):
@@ -29,13 +27,7 @@ class UserDomainService:
             raise ValueError(f"邮箱 {email} 已存在")
 
         # 创建用户实体
-        user = UserEntity(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
-        )
+        user = UserEntity(username=username, email=email, password=password, first_name=first_name, last_name=last_name)
 
         return await self.user_repository.save(user)
 
@@ -81,9 +73,7 @@ class UserDomainService:
         user.activate()
         return await self.user_repository.update(user)
 
-    async def grant_permissions(
-        self, user_id: str, is_staff: bool = False, is_superuser: bool = False
-    ) -> UserEntity:
+    async def grant_permissions(self, user_id: str, is_staff: bool = False, is_superuser: bool = False) -> UserEntity:
         """授予权限领域逻辑"""
         user = await self.user_repository.get_by_id(user_id)
         if not user:

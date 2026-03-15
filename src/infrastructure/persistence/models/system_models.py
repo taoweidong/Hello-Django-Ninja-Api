@@ -26,40 +26,16 @@ class SystemDeptInfo(models.Model):
     auto_bind = models.BooleanField(default=False, verbose_name="自动绑定")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     creator = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_depts",
-        verbose_name="创建者",
-        db_column="creator_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_depts", verbose_name="创建者", db_column="creator_id"
     )
     dept_belong = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="belong_depts",
-        verbose_name="归属部门",
-        db_column="dept_belong_id",
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="belong_depts", verbose_name="归属部门", db_column="dept_belong_id"
     )
     modifier = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_depts",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_depts", verbose_name="修改者", db_column="modifier_id"
     )
     parent = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="children",
-        verbose_name="上级部门",
-        db_column="parent_id",
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="children", verbose_name="上级部门", db_column="parent_id"
     )
 
     class Meta:
@@ -67,10 +43,7 @@ class SystemDeptInfo(models.Model):
         verbose_name = "部门信息"
         verbose_name_plural = "部门信息"
         ordering = ["rank", "created_time"]
-        indexes = [
-            models.Index(fields=["code"]),
-            models.Index(fields=["parent"]),
-        ]
+        indexes = [models.Index(fields=["code"]), models.Index(fields=["parent"])]
 
     def __str__(self) -> str:
         return self.name
@@ -100,32 +73,16 @@ class SystemMenuMeta(models.Model):
     is_keepalive = models.BooleanField(default=True, verbose_name="是否缓存")
     frame_url = models.URLField(blank=True, null=True, verbose_name="iframe地址")
     frame_loading = models.BooleanField(default=False, verbose_name="iframe加载状态")
-    transition_enter = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="进入动画"
-    )
-    transition_leave = models.CharField(
-        max_length=255, blank=True, null=True, verbose_name="离开动画"
-    )
+    transition_enter = models.CharField(max_length=255, blank=True, null=True, verbose_name="进入动画")
+    transition_leave = models.CharField(max_length=255, blank=True, null=True, verbose_name="离开动画")
     is_hidden_tag = models.BooleanField(default=False, verbose_name="是否隐藏标签")
     fixed_tag = models.BooleanField(default=False, verbose_name="固定标签")
     dynamic_level = models.IntegerField(default=0, verbose_name="动态层级")
     creator = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_menu_metas",
-        verbose_name="创建者",
-        db_column="creator_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_menu_metas", verbose_name="创建者", db_column="creator_id"
     )
     modifier = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_menu_metas",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_menu_metas", verbose_name="修改者", db_column="modifier_id"
     )
 
     class Meta:
@@ -144,11 +101,7 @@ class SystemMenu(models.Model):
     权限即菜单，存储系统菜单和权限信息
     """
 
-    MENU_TYPE_CHOICES = [
-        (0, "目录"),
-        (1, "菜单"),
-        (2, "按钮"),
-    ]
+    MENU_TYPE_CHOICES = [(0, "目录"), (1, "菜单"), (2, "按钮")]
 
     id = models.CharField(max_length=32, primary_key=True, default=uuid.uuid4().hex, editable=False)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
@@ -162,49 +115,22 @@ class SystemMenu(models.Model):
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     method = models.CharField(max_length=10, blank=True, null=True, verbose_name="请求方法")
     creator = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_menus",
-        verbose_name="创建者",
-        db_column="creator_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_menus", verbose_name="创建者", db_column="creator_id"
     )
     modifier = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_menus",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_menus", verbose_name="修改者", db_column="modifier_id"
     )
     parent = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="children",
-        verbose_name="父级菜单",
-        db_column="parent_id",
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="children", verbose_name="父级菜单", db_column="parent_id"
     )
-    meta = models.OneToOneField(
-        SystemMenuMeta,
-        on_delete=models.CASCADE,
-        related_name="menu",
-        verbose_name="菜单元数据",
-        db_column="meta_id",
-    )
+    meta = models.OneToOneField(SystemMenuMeta, on_delete=models.CASCADE, related_name="menu", verbose_name="菜单元数据", db_column="meta_id")
 
     class Meta:
         db_table = "system_menu"
         verbose_name = "菜单权限"
         verbose_name_plural = "菜单权限"
         ordering = ["rank", "created_time"]
-        indexes = [
-            models.Index(fields=["name"]),
-            models.Index(fields=["parent"]),
-        ]
+        indexes = [models.Index(fields=["name"]), models.Index(fields=["parent"])]
 
     def __str__(self) -> str:
         return self.name
@@ -237,22 +163,10 @@ class SystemOperationLog(models.Model):
     response_result = models.TextField(blank=True, null=True, verbose_name="响应结果")
     status_code = models.IntegerField(blank=True, null=True, verbose_name="业务状态码")
     creator = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="operation_logs",
-        verbose_name="操作者",
-        db_column="creator_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="operation_logs", verbose_name="操作者", db_column="creator_id"
     )
     modifier = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_logs",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_logs", verbose_name="修改者", db_column="modifier_id"
     )
 
     class Meta:
@@ -260,11 +174,7 @@ class SystemOperationLog(models.Model):
         verbose_name = "操作记录"
         verbose_name_plural = "操作记录"
         ordering = ["-created_time"]
-        indexes = [
-            models.Index(fields=["creator"]),
-            models.Index(fields=["module"]),
-            models.Index(fields=["created_time"]),
-        ]
+        indexes = [models.Index(fields=["creator"]), models.Index(fields=["module"]), models.Index(fields=["created_time"])]
 
     def __str__(self) -> str:
         return f"{self.creator} - {self.module} - {self.method} {self.path}"
@@ -284,39 +194,19 @@ class SystemUserRole(models.Model):
     code = models.CharField(max_length=128, unique=True, db_index=True, verbose_name="角色编码")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     creator = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_user_roles",
-        verbose_name="创建者",
-        db_column="creator_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="created_user_roles", verbose_name="创建者", db_column="creator_id"
     )
     modifier = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="modified_user_roles",
-        verbose_name="修改者",
-        db_column="modifier_id",
+        "User", on_delete=models.SET_NULL, null=True, blank=True, related_name="modified_user_roles", verbose_name="修改者", db_column="modifier_id"
     )
-    menus = models.ManyToManyField(
-        SystemMenu,
-        through="SystemUserRoleMenu",
-        related_name="roles",
-        verbose_name="菜单权限",
-    )
+    menus = models.ManyToManyField(SystemMenu, through="SystemUserRoleMenu", related_name="roles", verbose_name="菜单权限")
 
     class Meta:
         db_table = "system_userrole"
         verbose_name = "用户角色"
         verbose_name_plural = "用户角色"
         ordering = ["created_time"]
-        indexes = [
-            models.Index(fields=["code"]),
-            models.Index(fields=["name"]),
-        ]
+        indexes = [models.Index(fields=["code"]), models.Index(fields=["name"])]
 
     def __str__(self) -> str:
         return self.name
@@ -329,30 +219,15 @@ class SystemUserRoleMenu(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True)
-    userrole = models.ForeignKey(
-        SystemUserRole,
-        on_delete=models.CASCADE,
-        related_name="role_menus",
-        verbose_name="角色",
-        db_column="userrole_id",
-    )
-    menu = models.ForeignKey(
-        SystemMenu,
-        on_delete=models.CASCADE,
-        related_name="role_menus",
-        verbose_name="菜单",
-        db_column="menu_id",
-    )
+    userrole = models.ForeignKey(SystemUserRole, on_delete=models.CASCADE, related_name="role_menus", verbose_name="角色", db_column="userrole_id")
+    menu = models.ForeignKey(SystemMenu, on_delete=models.CASCADE, related_name="role_menus", verbose_name="菜单", db_column="menu_id")
 
     class Meta:
         db_table = "system_userrole_menu"
         verbose_name = "角色菜单关联"
         verbose_name_plural = "角色菜单关联"
         unique_together = [["userrole", "menu"]]
-        indexes = [
-            models.Index(fields=["userrole"]),
-            models.Index(fields=["menu"]),
-        ]
+        indexes = [models.Index(fields=["userrole"]), models.Index(fields=["menu"])]
 
     def __str__(self) -> str:
         return f"{self.userrole.name} - {self.menu.name}"
@@ -365,19 +240,9 @@ class SystemUserInfoRoles(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True)
-    userinfo = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="system_user_roles",
-        verbose_name="用户",
-        db_column="userinfo_id",
-    )
+    userinfo = models.ForeignKey("User", on_delete=models.CASCADE, related_name="system_user_roles", verbose_name="用户", db_column="userinfo_id")
     userrole = models.ForeignKey(
-        SystemUserRole,
-        on_delete=models.CASCADE,
-        related_name="system_user_roles",
-        verbose_name="角色",
-        db_column="userrole_id",
+        SystemUserRole, on_delete=models.CASCADE, related_name="system_user_roles", verbose_name="角色", db_column="userrole_id"
     )
 
     class Meta:
@@ -385,10 +250,7 @@ class SystemUserInfoRoles(models.Model):
         verbose_name = "用户角色关联"
         verbose_name_plural = "用户角色关联"
         unique_together = [["userinfo", "userrole"]]
-        indexes = [
-            models.Index(fields=["userinfo"]),
-            models.Index(fields=["userrole"]),
-        ]
+        indexes = [models.Index(fields=["userinfo"]), models.Index(fields=["userrole"])]
 
     def __str__(self) -> str:
         return f"{self.userinfo.username} - {self.userrole.name}"

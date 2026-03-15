@@ -15,9 +15,7 @@ def auth_service():
     mock_user_repo = Mock()
     mock_jwt_manager = Mock()
     mock_cache = Mock()
-    return AuthService(
-        user_repository=mock_user_repo, jwt_manager=mock_jwt_manager, cache=mock_cache
-    )
+    return AuthService(user_repository=mock_user_repo, jwt_manager=mock_jwt_manager, cache=mock_cache)
 
 
 @pytest.mark.unit
@@ -101,9 +99,7 @@ class TestAuthService:
         auth_service.user_repository.create.return_value = mock_user
 
         # 执行
-        result = auth_service.register(
-            username="newuser", email="new@example.com", password="password123"
-        )
+        result = auth_service.register(username="newuser", email="new@example.com", password="password123")
 
         # 断言
         assert result is not None
@@ -124,9 +120,7 @@ class TestAuthService:
 
         # 断言
         assert result == "new_access_token"
-        auth_service.jwt_manager.validate_refresh_token.assert_called_once_with(
-            "valid_refresh_token"
-        )
+        auth_service.jwt_manager.validate_refresh_token.assert_called_once_with("valid_refresh_token")
 
     def test_logout_success(self, auth_service):
         """测试登出成功"""

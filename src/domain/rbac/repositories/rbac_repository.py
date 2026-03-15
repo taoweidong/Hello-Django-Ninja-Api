@@ -77,9 +77,7 @@ class RBACRepositoryInterface(ABC):
         pass
 
     @abstractmethod
-    async def list_permissions(
-        self, is_active: bool = None, resource: str = None
-    ) -> list[PermissionEntity]:
+    async def list_permissions(self, is_active: bool = None, resource: str = None) -> list[PermissionEntity]:
         """获取权限列表"""
         pass
 

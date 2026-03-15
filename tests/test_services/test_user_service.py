@@ -15,9 +15,7 @@ def user_service():
     mock_user_repo = Mock()
     mock_rbac_repo = Mock()
     mock_cache = Mock()
-    return UserService(
-        user_repository=mock_user_repo, rbac_repository=mock_rbac_repo, cache=mock_cache
-    )
+    return UserService(user_repository=mock_user_repo, rbac_repository=mock_rbac_repo, cache=mock_cache)
 
 
 @pytest.mark.unit

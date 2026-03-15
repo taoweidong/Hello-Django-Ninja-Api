@@ -10,12 +10,7 @@ from src.domain.security.entities.ip_blacklist_entity import IPBlacklistEntity
 from src.domain.security.entities.ip_whitelist_entity import IPWhitelistEntity
 from src.domain.security.entities.rate_limit_entity import RateLimitEntity, RateLimitRecordEntity
 from src.domain.security.repositories.security_repository import SecurityRepository
-from src.infrastructure.persistence.models.security_models import (
-    IPBlacklist,
-    IPWhitelist,
-    RateLimitRecord,
-    RateLimitRule,
-)
+from src.infrastructure.persistence.models.security_models import IPBlacklist, IPWhitelist, RateLimitRecord, RateLimitRule
 
 
 class SecurityRepositoryImpl(SecurityRepository):
@@ -63,9 +58,7 @@ class SecurityRepositoryImpl(SecurityRepository):
         """列出黑名单"""
         queryset = IPBlacklist.objects.all()
         if not include_expired:
-            queryset = queryset.filter(is_permanent=True) | queryset.filter(
-                expires_at__gt=datetime.now()
-            )
+            queryset = queryset.filter(is_permanent=True) | queryset.filter(expires_at__gt=datetime.now())
         models = [m async for m in queryset]
         return [self._blacklist_model_to_entity(m) for m in models]
 
@@ -159,9 +152,7 @@ class SecurityRepositoryImpl(SecurityRepository):
 
     # ========== 限流记录 ==========
 
-    async def get_or_create_rate_limit_record(
-        self, key: str, endpoint: str, method: str, window_seconds: int
-    ) -> RateLimitRecordEntity:
+    async def get_or_create_rate_limit_record(self, key: str, endpoint: str, method: str, window_seconds: int) -> RateLimitRecordEntity:
         """获取或创建限流记录"""
         now = datetime.now()
         expires_at = now + timedelta(seconds=window_seconds)
@@ -177,13 +168,7 @@ class SecurityRepositoryImpl(SecurityRepository):
             return self._rate_limit_record_model_to_entity(model)
         except RateLimitRecord.DoesNotExist:
             model = await RateLimitRecord.objects.acreate(
-                id=uuid.uuid4(),
-                key=key,
-                endpoint=endpoint,
-                method=method,
-                count=0,
-                window_start=now,
-                expires_at=expires_at,
+                id=uuid.uuid4(), key=key, endpoint=endpoint, method=method, count=0, window_start=now, expires_at=expires_at
             )
             return self._rate_limit_record_model_to_entity(model)
 

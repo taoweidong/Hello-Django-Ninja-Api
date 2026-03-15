@@ -13,19 +13,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = [
-        ("auth", "0012_alter_user_first_name_max_length"),
-    ]
+    dependencies = [("auth", "0012_alter_user_first_name_max_length")]
 
     operations = [
         migrations.CreateModel(
             name="User",
             fields=[
                 ("password", models.CharField(max_length=128, verbose_name="password")),
-                (
-                    "last_login",
-                    models.DateTimeField(blank=True, null=True, verbose_name="last login"),
-                ),
+                ("last_login", models.DateTimeField(blank=True, null=True, verbose_name="last login")),
                 (
                     "is_superuser",
                     models.BooleanField(
@@ -45,106 +40,35 @@ class Migration(migrations.Migration):
                         verbose_name="username",
                     ),
                 ),
-                (
-                    "first_name",
-                    models.CharField(blank=True, max_length=150, verbose_name="first name"),
-                ),
-                (
-                    "last_name",
-                    models.CharField(blank=True, max_length=150, verbose_name="last name"),
-                ),
+                ("first_name", models.CharField(blank=True, max_length=150, verbose_name="first name")),
+                ("last_name", models.CharField(blank=True, max_length=150, verbose_name="last name")),
                 (
                     "is_staff",
                     models.BooleanField(
-                        default=False,
-                        help_text="Designates whether the user can log into this admin site.",
-                        verbose_name="staff status",
+                        default=False, help_text="Designates whether the user can log into this admin site.", verbose_name="staff status"
                     ),
                 ),
-                (
-                    "date_joined",
-                    models.DateTimeField(
-                        default=django.utils.timezone.now, verbose_name="date joined"
-                    ),
-                ),
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "uid",
-                    models.CharField(
-                        db_index=True,
-                        max_length=64,
-                        unique=True,
-                        verbose_name="用户UID",
-                    ),
-                ),
-                (
-                    "email",
-                    models.EmailField(
-                        db_index=True, max_length=254, unique=True, verbose_name="邮箱"
-                    ),
-                ),
-                (
-                    "phone",
-                    models.CharField(blank=True, max_length=20, null=True, verbose_name="手机号"),
-                ),
-                (
-                    "avatar",
-                    models.URLField(blank=True, null=True, verbose_name="头像URL"),
-                ),
-                (
-                    "bio",
-                    models.TextField(blank=True, null=True, verbose_name="个人简介"),
-                ),
-                (
-                    "date_of_birth",
-                    models.DateField(blank=True, null=True, verbose_name="出生日期"),
-                ),
+                ("date_joined", models.DateTimeField(default=django.utils.timezone.now, verbose_name="date joined")),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("uid", models.CharField(db_index=True, max_length=64, unique=True, verbose_name="用户UID")),
+                ("email", models.EmailField(db_index=True, max_length=254, unique=True, verbose_name="邮箱")),
+                ("phone", models.CharField(blank=True, max_length=20, null=True, verbose_name="手机号")),
+                ("avatar", models.URLField(blank=True, null=True, verbose_name="头像URL")),
+                ("bio", models.TextField(blank=True, null=True, verbose_name="个人简介")),
+                ("date_of_birth", models.DateField(blank=True, null=True, verbose_name="出生日期")),
                 (
                     "gender",
                     models.CharField(
-                        blank=True,
-                        choices=[("male", "男"), ("female", "女"), ("other", "其他")],
-                        max_length=10,
-                        null=True,
-                        verbose_name="性别",
+                        blank=True, choices=[("male", "男"), ("female", "女"), ("other", "其他")], max_length=10, null=True, verbose_name="性别"
                     ),
                 ),
-                (
-                    "address",
-                    models.CharField(blank=True, max_length=255, null=True, verbose_name="地址"),
-                ),
-                (
-                    "city",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="城市"),
-                ),
-                (
-                    "country",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="国家"),
-                ),
-                (
-                    "is_active",
-                    models.BooleanField(default=True, verbose_name="是否激活"),
-                ),
-                (
-                    "is_verified",
-                    models.BooleanField(default=False, verbose_name="是否验证"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
-                ),
+                ("address", models.CharField(blank=True, max_length=255, null=True, verbose_name="地址")),
+                ("city", models.CharField(blank=True, max_length=100, null=True, verbose_name="城市")),
+                ("country", models.CharField(blank=True, max_length=100, null=True, verbose_name="国家")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                ("is_verified", models.BooleanField(default=False, verbose_name="是否验证")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
                 (
                     "groups",
                     models.ManyToManyField(
@@ -168,48 +92,18 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "用户",
-                "verbose_name_plural": "用户",
-                "db_table": "users",
-                "ordering": ["-created_at"],
-            },
-            managers=[
-                ("objects", django.contrib.auth.models.UserManager()),
-            ],
+            options={"verbose_name": "用户", "verbose_name_plural": "用户", "db_table": "users", "ordering": ["-created_at"]},
+            managers=[("objects", django.contrib.auth.models.UserManager())],
         ),
         migrations.CreateModel(
             name="IPBlacklist",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "ip_address",
-                    models.GenericIPAddressField(db_index=True, unique=True, verbose_name="IP地址"),
-                ),
-                (
-                    "reason",
-                    models.TextField(blank=True, null=True, verbose_name="封禁原因"),
-                ),
-                (
-                    "is_permanent",
-                    models.BooleanField(default=False, verbose_name="是否永久封禁"),
-                ),
-                (
-                    "expires_at",
-                    models.DateTimeField(blank=True, null=True, verbose_name="过期时间"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("ip_address", models.GenericIPAddressField(db_index=True, unique=True, verbose_name="IP地址")),
+                ("reason", models.TextField(blank=True, null=True, verbose_name="封禁原因")),
+                ("is_permanent", models.BooleanField(default=False, verbose_name="是否永久封禁")),
+                ("expires_at", models.DateTimeField(blank=True, null=True, verbose_name="过期时间")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -222,41 +116,16 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "IP黑名单",
-                "verbose_name_plural": "IP黑名单",
-                "db_table": "ip_blacklist",
-                "ordering": ["-created_at"],
-            },
+            options={"verbose_name": "IP黑名单", "verbose_name_plural": "IP黑名单", "db_table": "ip_blacklist", "ordering": ["-created_at"]},
         ),
         migrations.CreateModel(
             name="IPWhitelist",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "ip_address",
-                    models.GenericIPAddressField(db_index=True, unique=True, verbose_name="IP地址"),
-                ),
-                (
-                    "description",
-                    models.CharField(blank=True, max_length=255, null=True, verbose_name="描述"),
-                ),
-                (
-                    "is_active",
-                    models.BooleanField(default=True, verbose_name="是否激活"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("ip_address", models.GenericIPAddressField(db_index=True, unique=True, verbose_name="IP地址")),
+                ("description", models.CharField(blank=True, max_length=255, null=True, verbose_name="描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -269,121 +138,42 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "IP白名单",
-                "verbose_name_plural": "IP白名单",
-                "db_table": "ip_whitelist",
-                "ordering": ["-created_at"],
-            },
+            options={"verbose_name": "IP白名单", "verbose_name_plural": "IP白名单", "db_table": "ip_whitelist", "ordering": ["-created_at"]},
         ),
         migrations.CreateModel(
             name="LoginLog",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ("username", models.CharField(max_length=150, verbose_name="用户名")),
                 ("ip_address", models.GenericIPAddressField(verbose_name="IP地址")),
-                (
-                    "user_agent",
-                    models.TextField(blank=True, null=True, verbose_name="用户代理"),
-                ),
-                (
-                    "device_info",
-                    models.CharField(
-                        blank=True, max_length=255, null=True, verbose_name="设备信息"
-                    ),
-                ),
-                (
-                    "browser",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="浏览器"),
-                ),
-                (
-                    "os",
-                    models.CharField(
-                        blank=True, max_length=100, null=True, verbose_name="操作系统"
-                    ),
-                ),
-                (
-                    "login_status",
-                    models.BooleanField(default=True, verbose_name="登录状态"),
-                ),
-                (
-                    "fail_reason",
-                    models.CharField(
-                        blank=True, max_length=255, null=True, verbose_name="失败原因"
-                    ),
-                ),
-                (
-                    "login_time",
-                    models.DateTimeField(auto_now_add=True, verbose_name="登录时间"),
-                ),
+                ("user_agent", models.TextField(blank=True, null=True, verbose_name="用户代理")),
+                ("device_info", models.CharField(blank=True, max_length=255, null=True, verbose_name="设备信息")),
+                ("browser", models.CharField(blank=True, max_length=100, null=True, verbose_name="浏览器")),
+                ("os", models.CharField(blank=True, max_length=100, null=True, verbose_name="操作系统")),
+                ("login_status", models.BooleanField(default=True, verbose_name="登录状态")),
+                ("fail_reason", models.CharField(blank=True, max_length=255, null=True, verbose_name="失败原因")),
+                ("login_time", models.DateTimeField(auto_now_add=True, verbose_name="登录时间")),
                 (
                     "user",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="login_logs",
-                        to=settings.AUTH_USER_MODEL,
-                        verbose_name="用户",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="login_logs", to=settings.AUTH_USER_MODEL, verbose_name="用户"
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "登录日志",
-                "verbose_name_plural": "登录日志",
-                "db_table": "login_logs",
-                "ordering": ["-login_time"],
-            },
+            options={"verbose_name": "登录日志", "verbose_name_plural": "登录日志", "db_table": "login_logs", "ordering": ["-login_time"]},
         ),
         migrations.CreateModel(
             name="Permission",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "code",
-                    models.CharField(
-                        db_index=True,
-                        max_length=100,
-                        unique=True,
-                        verbose_name="权限代码",
-                    ),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("code", models.CharField(db_index=True, max_length=100, unique=True, verbose_name="权限代码")),
                 ("name", models.CharField(max_length=100, verbose_name="权限名称")),
-                (
-                    "resource",
-                    models.CharField(db_index=True, max_length=50, verbose_name="资源类型"),
-                ),
+                ("resource", models.CharField(db_index=True, max_length=50, verbose_name="资源类型")),
                 ("action", models.CharField(max_length=50, verbose_name="操作类型")),
-                (
-                    "description",
-                    models.TextField(blank=True, null=True, verbose_name="描述"),
-                ),
-                (
-                    "is_active",
-                    models.BooleanField(default=True, verbose_name="是否激活"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
-                ),
+                ("description", models.TextField(blank=True, null=True, verbose_name="描述")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
             ],
             options={
                 "verbose_name": "权限",
@@ -399,31 +189,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RateLimitRecord",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "key",
-                    models.CharField(db_index=True, max_length=255, verbose_name="限流键"),
-                ),
-                (
-                    "endpoint",
-                    models.CharField(db_index=True, max_length=255, verbose_name="API端点"),
-                ),
-                (
-                    "method",
-                    models.CharField(default="GET", max_length=10, verbose_name="HTTP方法"),
-                ),
-                (
-                    "count",
-                    models.PositiveIntegerField(default=0, verbose_name="请求次数"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("key", models.CharField(db_index=True, max_length=255, verbose_name="限流键")),
+                ("endpoint", models.CharField(db_index=True, max_length=255, verbose_name="API端点")),
+                ("method", models.CharField(default="GET", max_length=10, verbose_name="HTTP方法")),
+                ("count", models.PositiveIntegerField(default=0, verbose_name="请求次数")),
                 ("window_start", models.DateTimeField(verbose_name="窗口开始时间")),
                 ("expires_at", models.DateTimeField(verbose_name="过期时间")),
             ],
@@ -431,84 +201,36 @@ class Migration(migrations.Migration):
                 "verbose_name": "限流记录",
                 "verbose_name_plural": "限流记录",
                 "db_table": "rate_limit_records",
-                "indexes": [
-                    models.Index(
-                        fields=["key", "endpoint", "method"],
-                        name="rate_limit__key_025fec_idx",
-                    )
-                ],
+                "indexes": [models.Index(fields=["key", "endpoint", "method"], name="rate_limit__key_025fec_idx")],
             },
         ),
         migrations.CreateModel(
             name="RateLimitRule",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ("name", models.CharField(max_length=100, verbose_name="规则名称")),
-                (
-                    "endpoint",
-                    models.CharField(db_index=True, max_length=255, verbose_name="API端点"),
-                ),
+                ("endpoint", models.CharField(db_index=True, max_length=255, verbose_name="API端点")),
                 (
                     "method",
                     models.CharField(
-                        choices=[
-                            ("GET", "GET"),
-                            ("POST", "POST"),
-                            ("PUT", "PUT"),
-                            ("PATCH", "PATCH"),
-                            ("DELETE", "DELETE"),
-                            ("*", "ALL"),
-                        ],
+                        choices=[("GET", "GET"), ("POST", "POST"), ("PUT", "PUT"), ("PATCH", "PATCH"), ("DELETE", "DELETE"), ("*", "ALL")],
                         default="*",
                         max_length=10,
                         verbose_name="HTTP方法",
                     ),
                 ),
-                (
-                    "rate",
-                    models.PositiveIntegerField(default=60, verbose_name="允许的请求次数"),
-                ),
-                (
-                    "period",
-                    models.PositiveIntegerField(default=60, verbose_name="时间周期(秒)"),
-                ),
+                ("rate", models.PositiveIntegerField(default=60, verbose_name="允许的请求次数")),
+                ("period", models.PositiveIntegerField(default=60, verbose_name="时间周期(秒)")),
                 (
                     "scope",
                     models.CharField(
-                        choices=[
-                            ("ip", "IP地址"),
-                            ("user", "用户"),
-                            ("global", "全局"),
-                        ],
-                        default="ip",
-                        max_length=20,
-                        verbose_name="限流范围",
+                        choices=[("ip", "IP地址"), ("user", "用户"), ("global", "全局")], default="ip", max_length=20, verbose_name="限流范围"
                     ),
                 ),
-                (
-                    "is_active",
-                    models.BooleanField(default=True, verbose_name="是否激活"),
-                ),
-                (
-                    "description",
-                    models.TextField(blank=True, null=True, verbose_name="描述"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
-                ),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                ("description", models.TextField(blank=True, null=True, verbose_name="描述")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
             ],
             options={
                 "verbose_name": "限流规则",
@@ -521,111 +243,34 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="RefreshToken",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "token",
-                    models.CharField(
-                        db_index=True,
-                        max_length=500,
-                        unique=True,
-                        verbose_name="刷新令牌",
-                    ),
-                ),
-                (
-                    "jti",
-                    models.CharField(
-                        db_index=True,
-                        max_length=100,
-                        unique=True,
-                        verbose_name="JWT ID",
-                    ),
-                ),
-                (
-                    "device_info",
-                    models.CharField(
-                        blank=True, max_length=255, null=True, verbose_name="设备信息"
-                    ),
-                ),
-                (
-                    "ip_address",
-                    models.GenericIPAddressField(blank=True, null=True, verbose_name="IP地址"),
-                ),
-                (
-                    "is_revoked",
-                    models.BooleanField(default=False, verbose_name="是否撤销"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("token", models.CharField(db_index=True, max_length=500, unique=True, verbose_name="刷新令牌")),
+                ("jti", models.CharField(db_index=True, max_length=100, unique=True, verbose_name="JWT ID")),
+                ("device_info", models.CharField(blank=True, max_length=255, null=True, verbose_name="设备信息")),
+                ("ip_address", models.GenericIPAddressField(blank=True, null=True, verbose_name="IP地址")),
+                ("is_revoked", models.BooleanField(default=False, verbose_name="是否撤销")),
                 ("expires_at", models.DateTimeField(verbose_name="过期时间")),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
                 (
                     "user",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="refresh_tokens",
-                        to=settings.AUTH_USER_MODEL,
-                        verbose_name="用户",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="refresh_tokens", to=settings.AUTH_USER_MODEL, verbose_name="用户"
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "刷新令牌",
-                "verbose_name_plural": "刷新令牌",
-                "db_table": "refresh_tokens",
-                "ordering": ["-created_at"],
-            },
+            options={"verbose_name": "刷新令牌", "verbose_name_plural": "刷新令牌", "db_table": "refresh_tokens", "ordering": ["-created_at"]},
         ),
         migrations.CreateModel(
             name="Role",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "code",
-                    models.CharField(
-                        db_index=True,
-                        max_length=50,
-                        unique=True,
-                        verbose_name="角色代码",
-                    ),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("code", models.CharField(db_index=True, max_length=50, unique=True, verbose_name="角色代码")),
                 ("name", models.CharField(max_length=100, verbose_name="角色名称")),
-                (
-                    "description",
-                    models.TextField(blank=True, null=True, verbose_name="描述"),
-                ),
-                (
-                    "is_system",
-                    models.BooleanField(default=False, verbose_name="系统角色"),
-                ),
-                (
-                    "is_active",
-                    models.BooleanField(default=True, verbose_name="是否激活"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
-                ),
+                ("description", models.TextField(blank=True, null=True, verbose_name="描述")),
+                ("is_system", models.BooleanField(default=False, verbose_name="系统角色")),
+                ("is_active", models.BooleanField(default=True, verbose_name="是否激活")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -637,47 +282,16 @@ class Migration(migrations.Migration):
                         verbose_name="创建者",
                     ),
                 ),
-                (
-                    "permissions",
-                    models.ManyToManyField(
-                        blank=True,
-                        related_name="roles",
-                        to="persistence.permission",
-                        verbose_name="权限",
-                    ),
-                ),
+                ("permissions", models.ManyToManyField(blank=True, related_name="roles", to="persistence.permission", verbose_name="权限")),
             ],
-            options={
-                "verbose_name": "角色",
-                "verbose_name_plural": "角色",
-                "db_table": "roles",
-                "ordering": ["-created_at"],
-            },
+            options={"verbose_name": "角色", "verbose_name_plural": "角色", "db_table": "roles", "ordering": ["-created_at"]},
         ),
         migrations.CreateModel(
             name="RolePermissionHistory",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "action",
-                    models.CharField(
-                        choices=[("add", "添加"), ("remove", "移除")],
-                        max_length=20,
-                        verbose_name="操作类型",
-                    ),
-                ),
-                (
-                    "changed_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="变更时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("action", models.CharField(choices=[("add", "添加"), ("remove", "移除")], max_length=20, verbose_name="操作类型")),
+                ("changed_at", models.DateTimeField(auto_now_add=True, verbose_name="变更时间")),
                 (
                     "changed_by",
                     models.ForeignKey(
@@ -689,21 +303,11 @@ class Migration(migrations.Migration):
                         verbose_name="变更者",
                     ),
                 ),
-                (
-                    "permission",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="persistence.permission",
-                        verbose_name="权限",
-                    ),
-                ),
+                ("permission", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="persistence.permission", verbose_name="权限")),
                 (
                     "role",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="permission_history",
-                        to="persistence.role",
-                        verbose_name="角色",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="permission_history", to="persistence.role", verbose_name="角色"
                     ),
                 ),
             ],
@@ -717,36 +321,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="TokenBlacklist",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "jti",
-                    models.CharField(
-                        db_index=True,
-                        max_length=100,
-                        unique=True,
-                        verbose_name="JWT ID",
-                    ),
-                ),
-                (
-                    "token_type",
-                    models.CharField(
-                        choices=[("access", "访问令牌"), ("refresh", "刷新令牌")],
-                        max_length=20,
-                        verbose_name="令牌类型",
-                    ),
-                ),
-                (
-                    "revoked_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="撤销时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("jti", models.CharField(db_index=True, max_length=100, unique=True, verbose_name="JWT ID")),
+                ("token_type", models.CharField(choices=[("access", "访问令牌"), ("refresh", "刷新令牌")], max_length=20, verbose_name="令牌类型")),
+                ("revoked_at", models.DateTimeField(auto_now_add=True, verbose_name="撤销时间")),
                 ("expires_at", models.DateTimeField(verbose_name="原过期时间")),
                 (
                     "user",
@@ -758,137 +336,53 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "Token黑名单",
-                "verbose_name_plural": "Token黑名单",
-                "db_table": "token_blacklist",
-                "ordering": ["-revoked_at"],
-            },
+            options={"verbose_name": "Token黑名单", "verbose_name_plural": "Token黑名单", "db_table": "token_blacklist", "ordering": ["-revoked_at"]},
         ),
         migrations.CreateModel(
             name="UserDevice",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ("device_id", models.CharField(max_length=255, verbose_name="设备ID")),
-                (
-                    "device_name",
-                    models.CharField(max_length=255, verbose_name="设备名称"),
-                ),
-                (
-                    "device_type",
-                    models.CharField(max_length=50, verbose_name="设备类型"),
-                ),
-                (
-                    "browser",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="浏览器"),
-                ),
-                (
-                    "os",
-                    models.CharField(
-                        blank=True, max_length=100, null=True, verbose_name="操作系统"
-                    ),
-                ),
+                ("device_name", models.CharField(max_length=255, verbose_name="设备名称")),
+                ("device_type", models.CharField(max_length=50, verbose_name="设备类型")),
+                ("browser", models.CharField(blank=True, max_length=100, null=True, verbose_name="浏览器")),
+                ("os", models.CharField(blank=True, max_length=100, null=True, verbose_name="操作系统")),
                 ("ip_address", models.GenericIPAddressField(verbose_name="IP地址")),
-                (
-                    "last_login",
-                    models.DateTimeField(auto_now=True, verbose_name="最后登录"),
-                ),
+                ("last_login", models.DateTimeField(auto_now=True, verbose_name="最后登录")),
                 (
                     "user",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="devices",
-                        to=settings.AUTH_USER_MODEL,
-                        verbose_name="用户",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="devices", to=settings.AUTH_USER_MODEL, verbose_name="用户"
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "用户设备",
-                "verbose_name_plural": "用户设备",
-                "db_table": "user_devices",
-            },
+            options={"verbose_name": "用户设备", "verbose_name_plural": "用户设备", "db_table": "user_devices"},
         ),
         migrations.CreateModel(
             name="UserProfile",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "website",
-                    models.URLField(blank=True, null=True, verbose_name="个人网站"),
-                ),
-                (
-                    "company",
-                    models.CharField(blank=True, max_length=200, null=True, verbose_name="公司"),
-                ),
-                (
-                    "occupation",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="职业"),
-                ),
-                (
-                    "github",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="GitHub"),
-                ),
-                (
-                    "twitter",
-                    models.CharField(blank=True, max_length=100, null=True, verbose_name="Twitter"),
-                ),
-                (
-                    "created_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="创建时间"),
-                ),
-                (
-                    "updated_at",
-                    models.DateTimeField(auto_now=True, verbose_name="更新时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("website", models.URLField(blank=True, null=True, verbose_name="个人网站")),
+                ("company", models.CharField(blank=True, max_length=200, null=True, verbose_name="公司")),
+                ("occupation", models.CharField(blank=True, max_length=100, null=True, verbose_name="职业")),
+                ("github", models.CharField(blank=True, max_length=100, null=True, verbose_name="GitHub")),
+                ("twitter", models.CharField(blank=True, max_length=100, null=True, verbose_name="Twitter")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="创建时间")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="更新时间")),
                 (
                     "user",
                     models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="profile",
-                        to=settings.AUTH_USER_MODEL,
-                        verbose_name="用户",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="profile", to=settings.AUTH_USER_MODEL, verbose_name="用户"
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "用户档案",
-                "verbose_name_plural": "用户档案",
-                "db_table": "user_profiles",
-            },
+            options={"verbose_name": "用户档案", "verbose_name_plural": "用户档案", "db_table": "user_profiles"},
         ),
         migrations.CreateModel(
             name="UserRole",
             fields=[
-                (
-                    "id",
-                    models.UUIDField(
-                        default=uuid.uuid4,
-                        editable=False,
-                        primary_key=True,
-                        serialize=False,
-                    ),
-                ),
-                (
-                    "assigned_at",
-                    models.DateTimeField(auto_now_add=True, verbose_name="分配时间"),
-                ),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("assigned_at", models.DateTimeField(auto_now_add=True, verbose_name="分配时间")),
                 (
                     "assigned_by",
                     models.ForeignKey(
@@ -903,70 +397,27 @@ class Migration(migrations.Migration):
                 (
                     "role",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="user_roles",
-                        to="persistence.role",
-                        verbose_name="角色",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="user_roles", to="persistence.role", verbose_name="角色"
                     ),
                 ),
                 (
                     "user",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="user_roles",
-                        to=settings.AUTH_USER_MODEL,
-                        verbose_name="用户",
+                        on_delete=django.db.models.deletion.CASCADE, related_name="user_roles", to=settings.AUTH_USER_MODEL, verbose_name="用户"
                     ),
                 ),
             ],
-            options={
-                "verbose_name": "用户角色",
-                "verbose_name_plural": "用户角色",
-                "db_table": "user_roles",
-            },
+            options={"verbose_name": "用户角色", "verbose_name_plural": "用户角色", "db_table": "user_roles"},
         ),
-        migrations.AddIndex(
-            model_name="user",
-            index=models.Index(fields=["username"], name="users_usernam_baeb4b_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="user",
-            index=models.Index(fields=["email"], name="users_email_4b85f2_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="user",
-            index=models.Index(fields=["phone"], name="users_phone_af6883_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="loginlog",
-            index=models.Index(fields=["user"], name="login_logs_user_id_8a9e39_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="loginlog",
-            index=models.Index(fields=["login_time"], name="login_logs_login_t_bc25ca_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="refreshtoken",
-            index=models.Index(fields=["user"], name="refresh_tok_user_id_46676d_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="refreshtoken",
-            index=models.Index(fields=["jti"], name="refresh_tok_jti_121d6d_idx"),
-        ),
-        migrations.AlterUniqueTogether(
-            name="userdevice",
-            unique_together={("user", "device_id")},
-        ),
-        migrations.AddIndex(
-            model_name="userrole",
-            index=models.Index(fields=["user"], name="user_roles_user_id_05df60_idx"),
-        ),
-        migrations.AddIndex(
-            model_name="userrole",
-            index=models.Index(fields=["role"], name="user_roles_role_id_0b583b_idx"),
-        ),
-        migrations.AlterUniqueTogether(
-            name="userrole",
-            unique_together={("user", "role")},
-        ),
+        migrations.AddIndex(model_name="user", index=models.Index(fields=["username"], name="users_usernam_baeb4b_idx")),
+        migrations.AddIndex(model_name="user", index=models.Index(fields=["email"], name="users_email_4b85f2_idx")),
+        migrations.AddIndex(model_name="user", index=models.Index(fields=["phone"], name="users_phone_af6883_idx")),
+        migrations.AddIndex(model_name="loginlog", index=models.Index(fields=["user"], name="login_logs_user_id_8a9e39_idx")),
+        migrations.AddIndex(model_name="loginlog", index=models.Index(fields=["login_time"], name="login_logs_login_t_bc25ca_idx")),
+        migrations.AddIndex(model_name="refreshtoken", index=models.Index(fields=["user"], name="refresh_tok_user_id_46676d_idx")),
+        migrations.AddIndex(model_name="refreshtoken", index=models.Index(fields=["jti"], name="refresh_tok_jti_121d6d_idx")),
+        migrations.AlterUniqueTogether(name="userdevice", unique_together={("user", "device_id")}),
+        migrations.AddIndex(model_name="userrole", index=models.Index(fields=["user"], name="user_roles_user_id_05df60_idx")),
+        migrations.AddIndex(model_name="userrole", index=models.Index(fields=["role"], name="user_roles_role_id_0b583b_idx")),
+        migrations.AlterUniqueTogether(name="userrole", unique_together={("user", "role")}),
     ]

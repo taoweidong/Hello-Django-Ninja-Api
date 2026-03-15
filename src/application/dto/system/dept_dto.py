@@ -48,13 +48,7 @@ class DeptUpdateDTO(BaseModel):
     dept_belong_id: str | None = Field(None, description="归属部门ID")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "技术部",
-                "rank": 2,
-                "description": "技术研发部门（更新）",
-            }
-        }
+        json_schema_extra = {"example": {"name": "技术部", "rank": 2, "description": "技术研发部门（更新）"}}
 
 
 class DeptResponseDTO(BaseModel):

@@ -23,13 +23,7 @@ class CacheManager:
     PREFIX = "hello_api"
 
     # 缓存分组
-    GROUPS = {
-        "user": "user",
-        "rbac": "rbac",
-        "auth": "auth",
-        "security": "security",
-        "system": "system",
-    }
+    GROUPS = {"user": "user", "rbac": "rbac", "auth": "auth", "security": "security", "system": "system"}
 
     @classmethod
     def _make_key(cls, key: str, group: str = None) -> str:
@@ -110,9 +104,7 @@ class CacheManager:
         return cls.get(f"permissions:{user_id}", group="rbac")
 
     @classmethod
-    def set_permissions_cache(
-        cls, user_id: str, permissions: list[str], timeout: int = 600
-    ) -> bool:
+    def set_permissions_cache(cls, user_id: str, permissions: list[str], timeout: int = 600) -> bool:
         """设置用户权限缓存"""
         return cls.set(f"permissions:{user_id}", permissions, timeout, group="rbac")
 

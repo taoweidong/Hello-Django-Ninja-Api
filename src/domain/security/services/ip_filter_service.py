@@ -32,12 +32,7 @@ class IPFilterDomainService:
     # ========== 黑名单管理 ==========
 
     async def add_to_blacklist(
-        self,
-        ip_address: str,
-        reason: str = "",
-        is_permanent: bool = False,
-        expires_at: datetime = None,
-        created_by: str = None,
+        self, ip_address: str, reason: str = "", is_permanent: bool = False, expires_at: datetime = None, created_by: str = None
     ) -> IPBlacklistEntity:
         """添加IP到黑名单"""
         # 检查是否已存在
@@ -45,13 +40,7 @@ class IPFilterDomainService:
         if existing and existing.is_active():
             raise ValueError(f"IP {ip_address} 已在黑名单中")
 
-        entry = IPBlacklistEntity(
-            ip_address=ip_address,
-            reason=reason,
-            is_permanent=is_permanent,
-            expires_at=expires_at,
-            created_by=created_by,
-        )
+        entry = IPBlacklistEntity(ip_address=ip_address, reason=reason, is_permanent=is_permanent, expires_at=expires_at, created_by=created_by)
         self.blacklist[ip_address] = entry
         return entry
 
@@ -80,19 +69,13 @@ class IPFilterDomainService:
 
     # ========== 白名单管理 ==========
 
-    async def add_to_whitelist(
-        self, ip_address: str, description: str = "", created_by: str = None
-    ) -> IPWhitelistEntity:
+    async def add_to_whitelist(self, ip_address: str, description: str = "", created_by: str = None) -> IPWhitelistEntity:
         """添加IP到白名单"""
         existing = self.whitelist.get(ip_address)
         if existing and existing.is_active:
             raise ValueError(f"IP {ip_address} 已在白名单中")
 
-        entry = IPWhitelistEntity(
-            ip_address=ip_address,
-            description=description,
-            created_by=created_by,
-        )
+        entry = IPWhitelistEntity(ip_address=ip_address, description=description, created_by=created_by)
         self.whitelist[ip_address] = entry
         return entry
 

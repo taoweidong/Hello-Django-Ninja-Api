@@ -2,9 +2,11 @@
 初始化脚本 - 创建初始管理员账号
 使用 Django shell 执行，避免导入链问题
 """
+
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 
 def run_command(cmd, check=True):
@@ -19,20 +21,20 @@ def run_command(cmd, check=True):
 def main():
     """主函数"""
     # 获取环境变量或使用默认值
-    username = os.environ.get('ADMIN_USERNAME', 'admin')
-    email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
-    password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+    username = os.environ.get("ADMIN_USERNAME", "admin")
+    email = os.environ.get("ADMIN_EMAIL", "admin@example.com")
+    password = os.environ.get("ADMIN_PASSWORD", "admin123")
 
-    project_root = os.path.dirname(os.path.dirname(__file__))
+    project_root = Path(__file__).resolve().parent.parent
     python_exe = sys.executable
-    manage_py = os.path.join(project_root, 'manage.py')
+    manage_py = project_root / "manage.py"
 
     # 1. 先运行迁移
     print("=" * 60)
     print("Step 1: Running database migrations...")
     print("=" * 60)
     try:
-        run_command([python_exe, manage_py, 'migrate', '--noinput'])
+        run_command([python_exe, manage_py, "migrate", "--noinput"])
     except subprocess.CalledProcessError as e:
         print(f"ERROR: Migration failed: {e}")
         return
@@ -69,7 +71,7 @@ else:
 
     # 执行 Django shell
     try:
-        run_command([python_exe, manage_py, 'shell', '-c', script])
+        run_command([python_exe, manage_py, "shell", "-c", script])
     except subprocess.CalledProcessError as e:
         print(f"ERROR: Failed to create admin account: {e}")
         return
@@ -79,5 +81,5 @@ else:
     print("=" * 60)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

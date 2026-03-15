@@ -32,7 +32,7 @@ class UserRepositoryImpl(UserRepositoryInterface):
             last_login=user_model.last_login,
             avatar=user_model.avatar,
             phone=user_model.phone,
-            bio=getattr(user_model, 'bio', None),
+            bio=getattr(user_model, "bio", None),
         )
 
     def _to_model(self, entity: UserEntity) -> User:

@@ -4,11 +4,10 @@ Pytest 配置文件
 
 import pytest
 from django.core.management import call_command
-from django.db import connection
 
 
 @pytest.fixture(scope="session")
-def django_db_setup(django_db_setup, django_db_blocker):
+def django_db_setup(_django_db_setup, django_db_blocker):
     """会话级别的数据库设置，确保迁移正确执行"""
     with django_db_blocker.unblock():
         # 创建所有表
@@ -16,7 +15,7 @@ def django_db_setup(django_db_setup, django_db_blocker):
 
 
 @pytest.fixture
-def User():
+def user_model():
     """User模型fixture"""
     from django.contrib.auth import get_user_model
 
@@ -32,12 +31,7 @@ def db_setup(django_db_setup, django_db_blocker):
 @pytest.fixture
 def user_data():
     """测试用户数据 fixture"""
-    return {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "testpass123",
-        "phone": "13800138000",
-    }
+    return {"username": "testuser", "email": "test@example.com", "password": "testpass123", "phone": "13800138000"}
 
 
 @pytest.fixture

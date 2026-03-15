@@ -31,10 +31,7 @@ class Permission(models.Model):
         verbose_name = "权限"
         verbose_name_plural = "权限"
         ordering = ["resource", "action"]
-        indexes = [
-            models.Index(fields=["resource"]),
-            models.Index(fields=["code"]),
-        ]
+        indexes = [models.Index(fields=["resource"]), models.Index(fields=["code"])]
 
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -50,21 +47,12 @@ class Role(models.Model):
     code = models.CharField(max_length=50, unique=True, db_index=True, verbose_name="角色代码")
     name = models.CharField(max_length=100, verbose_name="角色名称")
     description = models.TextField(blank=True, null=True, verbose_name="描述")
-    permissions = models.ManyToManyField(
-        Permission, related_name="roles", blank=True, verbose_name="权限"
-    )
+    permissions = models.ManyToManyField(Permission, related_name="roles", blank=True, verbose_name="权限")
     is_system = models.BooleanField(default=False, verbose_name="系统角色")
     is_active = models.BooleanField(default=True, verbose_name="是否激活")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
-    created_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="created_roles",
-        verbose_name="创建者",
-    )
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="created_roles", verbose_name="创建者")
 
     class Meta:
         db_table = "roles"
@@ -83,31 +71,17 @@ class UserRole(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="user_roles", verbose_name="用户"
-    )
-    role = models.ForeignKey(
-        Role, on_delete=models.CASCADE, related_name="user_roles", verbose_name="角色"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_roles", verbose_name="用户")
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="user_roles", verbose_name="角色")
     assigned_at = models.DateTimeField(auto_now_add=True, verbose_name="分配时间")
-    assigned_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="assigned_roles",
-        verbose_name="分配者",
-    )
+    assigned_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="assigned_roles", verbose_name="分配者")
 
     class Meta:
         db_table = "user_roles"
         verbose_name = "用户角色"
         verbose_name_plural = "用户角色"
         unique_together = [["user", "role"]]
-        indexes = [
-            models.Index(fields=["user"]),
-            models.Index(fields=["role"]),
-        ]
+        indexes = [models.Index(fields=["user"]), models.Index(fields=["role"])]
 
     def __str__(self):
         return f"{self.user.username} - {self.role.name}"
@@ -120,22 +94,11 @@ class RolePermissionHistory(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.ForeignKey(
-        Role, on_delete=models.CASCADE, related_name="permission_history", verbose_name="角色"
-    )
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name="permission_history", verbose_name="角色")
     permission = models.ForeignKey(Permission, on_delete=models.CASCADE, verbose_name="权限")
-    action = models.CharField(
-        max_length=20, choices=[("add", "添加"), ("remove", "移除")], verbose_name="操作类型"
-    )
+    action = models.CharField(max_length=20, choices=[("add", "添加"), ("remove", "移除")], verbose_name="操作类型")
     changed_at = models.DateTimeField(auto_now_add=True, verbose_name="变更时间")
-    changed_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="permission_changes",
-        verbose_name="变更者",
-    )
+    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="permission_changes", verbose_name="变更者")
 
     class Meta:
         db_table = "role_permission_history"
