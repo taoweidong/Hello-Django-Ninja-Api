@@ -7,11 +7,11 @@ from typing import Annotated
 
 from ninja import Query
 from ninja_extra import api_controller, http_delete, http_get, http_post, http_put
-from ninja_extra.permissions import AllowAny
 
 from src.api.common.responses import MessageResponse
 from src.application.dto.rbac import AssignRoleDTO, PermissionResponseDTO, RoleCreateDTO, RoleResponseDTO, RoleUpdateDTO, UserRolesResponseDTO
 from src.application.services.rbac_service import RBACService
+from src.infrastructure.auth_jwt import GlobalAuth
 
 
 class RoleListResponse(MessageResponse):
@@ -28,7 +28,7 @@ class PermissionListResponse(MessageResponse):
     total: int
 
 
-@api_controller("/v1/rbac", tags=["权限管理"], permissions=[AllowAny])
+@api_controller("/v1/rbac", tags=["权限管理"], auth=GlobalAuth())
 class RBACController:
     """
     RBAC控制器

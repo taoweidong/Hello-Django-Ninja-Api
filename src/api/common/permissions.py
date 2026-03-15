@@ -234,10 +234,39 @@ class IsAdminUser(BasePermission):
 
 class AllowAny(BasePermission):
     """
-    允许所有用户访问
-    用于公开接口
+    允许所有用户访问（豁免鉴权标记）
+    用于公开接口，跳过身份验证
+
+    用法:
+        # 控制器级别使用，豁免整个控制器的鉴权
+        @api_controller("/auth", permissions=[AllowAny])
+        class AuthController:
+            pass
+
+        # 方法级别使用，豁免单个接口的鉴权
+        @http_post("/register", permissions=[AllowAny])
+        async def register(self, ...):
+            pass
+
+    注意:
+        - 此权限类用于标记接口不需要身份验证
+        - 在默认鉴权模式下，只有明确标记 AllowAny 的接口才能公开访问
     """
 
     def has_permission(self, request: Any, controller: Any) -> bool:
-        """允许所有请求"""
+        """允许所有请求，跳过鉴权"""
         return True
+
+
+class SkipAuth(AllowAny):
+    """
+    跳过鉴权标记（AllowAny 的别名）
+    语义更明确，表示该接口跳过鉴权检查
+
+    用法:
+        @http_get("/public-data", permissions=[SkipAuth])
+        async def get_public_data(self):
+            pass
+    """
+
+    pass

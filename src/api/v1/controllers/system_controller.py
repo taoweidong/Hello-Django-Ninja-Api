@@ -7,7 +7,6 @@ from datetime import datetime
 
 from ninja import Query
 from ninja_extra import api_controller, http_delete, http_get, http_post, http_put
-from ninja_extra.permissions import AllowAny
 
 from src.api.common.responses import MessageResponse
 from src.application.dto.system import (
@@ -27,6 +26,7 @@ from src.application.dto.system import (
     RoleUpdateDTO,
 )
 from src.application.services.system_service import SystemService
+from src.infrastructure.auth_jwt import GlobalAuth
 
 
 class DeptListResponse(MessageResponse):
@@ -57,7 +57,7 @@ class LogListResponse(MessageResponse):
     total: int
 
 
-@api_controller("/v1/system", tags=["系统管理"], permissions=[AllowAny])
+@api_controller("/v1/system", tags=["系统管理"], auth=GlobalAuth())
 class SystemController:
     """
     系统管理控制器
@@ -79,7 +79,7 @@ class SystemController:
 
     # ========== 系统管理 ==========
 
-    @http_get("/health", response=dict, summary="健康检查", operation_id="system_health_check")
+    @http_get("/health", response=dict, summary="健康检查", operation_id="system_health_check", auth=None)
     def health_check(self) -> dict:
         """
         健康检查

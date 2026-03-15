@@ -4,7 +4,6 @@ Security Controller - 安全管理API控制器
 """
 
 from ninja_extra import api_controller, http_delete, http_get, http_post, http_put
-from ninja_extra.permissions import AllowAny
 
 from src.api.common.responses import MessageResponse
 from src.application.dto.security import (
@@ -16,9 +15,10 @@ from src.application.dto.security import (
     RateLimitRuleResponseDTO,
 )
 from src.application.services.security_service import SecurityService
+from src.infrastructure.auth_jwt import GlobalAuth
 
 
-@api_controller("/v1", tags=["安全"], permissions=[AllowAny])
+@api_controller("/v1", tags=["安全"], auth=GlobalAuth())
 class SecurityController:
     """
     安全控制器

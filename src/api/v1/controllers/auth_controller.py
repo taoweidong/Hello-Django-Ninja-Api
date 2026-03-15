@@ -1,11 +1,12 @@
 """
 认证控制器
 Auth Controller - 认证API控制器
+
+权限说明：所有接口均豁免鉴权（auth=None），因为登录/刷新/登出不需要认证
 """
 
 from ninja import Body, Header
 from ninja_extra import api_controller, http_post
-from ninja_extra.permissions import AllowAny
 
 from src.api.common.responses import MessageResponse
 from src.application.dto.auth import RefreshTokenDTO, TokenResponseDTO
@@ -13,7 +14,7 @@ from src.application.dto.user import UserLoginDTO
 from src.application.services.auth_service import AuthService
 
 
-@api_controller("/v1/auth", tags=["认证"], permissions=[AllowAny])
+@api_controller("/v1/auth", tags=["认证"], auth=None)
 class AuthController:
     """
     认证控制器
