@@ -6,18 +6,30 @@
 - [src/api/v1/auth_api.py](file://src/api/v1/auth_api.py)
 - [src/api/v1/user_api.py](file://src/api/v1/user_api.py)
 - [src/api/v1/rbac_api.py](file://src/api/v1/rbac_api.py)
-- [src/api/v1/system_api.py](file://src/api/v1/system_api.py)
 - [src/api/v1/security_api.py](file://src/api/v1/security_api.py)
+- [src/api/v1/system_api.py](file://src/api/v1/system_api.py)
 - [src/api/v1/controllers/auth_controller.py](file://src/api/v1/controllers/auth_controller.py)
 - [src/api/v1/controllers/user_controller.py](file://src/api/v1/controllers/user_controller.py)
 - [src/api/v1/controllers/rbac_controller.py](file://src/api/v1/controllers/rbac_controller.py)
-- [src/api/v1/controllers/system_controller.py](file://src/api/v1/controllers/system_controller.py)
 - [src/api/v1/controllers/security_controller.py](file://src/api/v1/controllers/security_controller.py)
+- [src/api/v1/controllers/system_controller.py](file://src/api/v1/controllers/system_controller.py)
 - [src/application/dto/auth/token_response_dto.py](file://src/application/dto/auth/token_response_dto.py)
 - [src/application/dto/user/user_create_dto.py](file://src/application/dto/user/user_create_dto.py)
 - [src/application/dto/rbac/role_create_dto.py](file://src/application/dto/rbac/role_create_dto.py)
+- [src/application/dto/security/rate_limit_rule_dto.py](file://src/application/dto/security/rate_limit_rule_dto.py)
 - [src/core/middlewares/rate_limit_middleware.py](file://src/core/middlewares/rate_limit_middleware.py)
 - [src/core/middlewares/security_middleware.py](file://src/core/middlewares/security_middleware.py)
+- [src/core/middlewares/ip_limit_middleware.py](file://src/core/middlewares/ip_limit_middleware.py)
+- [src/core/middlewares/request_logging_middleware.py](file://src/core/middlewares/request_logging_middleware.py)
+- [src/infrastructure/auth_jwt/jwt_manager.py](file://src/infrastructure/auth_jwt/jwt_manager.py)
+- [src/infrastructure/auth_jwt/token_validator.py](file://src/infrastructure/auth_jwt/token_validator.py)
+- [src/infrastructure/cache/cache_manager.py](file://src/infrastructure/cache/cache_manager.py)
+- [src/infrastructure/cache/redis_cache.py](file://src/infrastructure/cache/redis_cache.py)
+- [src/infrastructure/persistence/models/security_models.py](file://src/infrastructure/persistence/models/security_models.py)
+- [src/infrastructure/repositories/user_repo_impl.py](file://src/infrastructure/repositories/user_repo_impl.py)
+- [src/infrastructure/repositories/rbac_repo_impl.py](file://src/infrastructure/repositories/rbac_repo_impl.py)
+- [src/infrastructure/repositories/security_repo_impl.py](file://src/infrastructure/repositories/security_repo_impl.py)
+- [src/infrastructure/repositories/system_repo_impl.py](file://src/infrastructure/repositories/system_repo_impl.py)
 </cite>
 
 ## 目录
@@ -26,413 +38,374 @@
 3. [核心组件](#核心组件)
 4. [架构总览](#架构总览)
 5. [详细组件分析](#详细组件分析)
-6. [依赖分析](#依赖分析)
+6. [依赖关系分析](#依赖关系分析)
 7. [性能考虑](#性能考虑)
 8. [故障排除指南](#故障排除指南)
 9. [结论](#结论)
 10. [附录](#附录)
 
 ## 简介
-本项目基于 Django-Ninja-Extra 构建，提供一套完整的 RESTful API 服务，集成 JWT 认证与 RBAC 权限管理。API 采用版本化设计（v1），支持认证、用户管理、RBAC 权限管理、系统管理（部门、菜单、角色、操作日志）以及安全配置（IP 黑/白名单、限流规则）。本文档面向开发者与测试人员，提供每个接口的完整规范、认证方式、请求/响应示例、状态码说明、最佳实践与故障排除建议。
+本项目基于 Django-Ninja-Extra 构建，提供一套完整的 RESTful API，集成 JWT 认证与 RBAC 权限管理。API 采用版本化设计（v1），支持认证、用户管理、权限管理、安全防护与系统管理等模块。本文档面向客户端开发者，提供所有端点的 HTTP 方法、URL 模式、请求参数、响应格式、错误码说明、认证机制、权限要求、访问控制策略、API 版本管理与向后兼容性说明、速率限制、错误处理与调试指南。
 
 ## 项目结构
-API 应用在应用入口处集中注册控制器，按功能模块拆分为认证、用户、RBAC、系统管理、安全五个领域控制器，每个控制器对应一组路由与业务服务。
+API 应用在应用入口处创建 NinjaExtraAPI 实例，并注册多个控制器模块。每个控制器负责特定业务域的路由与权限控制；各控制器内部再调用对应的服务层实现业务逻辑。
 
 ```mermaid
 graph TB
 App["API 应用<br/>src/api/app.py"] --> CAuth["认证控制器<br/>src/api/v1/controllers/auth_controller.py"]
 App --> CUser["用户控制器<br/>src/api/v1/controllers/user_controller.py"]
 App --> CRbac["RBAC 控制器<br/>src/api/v1/controllers/rbac_controller.py"]
+App --> CSecurity["安全控制器<br/>src/api/v1/controllers/security_controller.py"]
 App --> CSystem["系统管理控制器<br/>src/api/v1/controllers/system_controller.py"]
-App --> CSec["安全控制器<br/>src/api/v1/controllers/security_controller.py"]
+App --> Health["健康检查<br/>/health"]
+App --> Root["根路径<br/>/"]
 ```
 
-**图表来源**
-- [src/api/app.py:78-84](file://src/api/app.py#L78-L84)
-- [src/api/v1/controllers/auth_controller.py:16](file://src/api/v1/controllers/auth_controller.py#L16)
-- [src/api/v1/controllers/user_controller.py:33](file://src/api/v1/controllers/user_controller.py#L33)
-- [src/api/v1/controllers/rbac_controller.py:38](file://src/api/v1/controllers/rbac_controller.py#L38)
-- [src/api/v1/controllers/system_controller.py:60](file://src/api/v1/controllers/system_controller.py#L60)
-- [src/api/v1/controllers/security_controller.py:21](file://src/api/v1/controllers/security_controller.py#L21)
+图表来源
+- [src/api/app.py:17-30](file://src/api/app.py#L17-L30)
+- [src/api/v1/controllers/auth_controller.py:16-133](file://src/api/v1/controllers/auth_controller.py#L16-L133)
+- [src/api/v1/controllers/user_controller.py:33-283](file://src/api/v1/controllers/user_controller.py#L33-L283)
+- [src/api/v1/controllers/rbac_controller.py:38-351](file://src/api/v1/controllers/rbac_controller.py#L38-L351)
+- [src/api/v1/controllers/security_controller.py:21-302](file://src/api/v1/controllers/security_controller.py#L21-L302)
+- [src/api/v1/controllers/system_controller.py:60-734](file://src/api/v1/controllers/system_controller.py#L60-L734)
 
-**章节来源**
-- [src/api/app.py:70-102](file://src/api/app.py#L70-L102)
+章节来源
+- [src/api/app.py:17-48](file://src/api/app.py#L17-L48)
 
 ## 核心组件
-- API 应用与版本化：应用实例在入口文件中创建并注册控制器，统一暴露 v1 版本接口。
-- 控制器层：每个功能域控制器负责路由映射、参数校验与调用服务层。
-- DTO 层：定义请求/响应的数据结构与示例，确保前后端契约一致。
-- 中间件层：提供安全头注入、限流控制等横切能力。
+- API 应用与路由注册：在应用入口创建 NinjaExtraAPI 实例并注册控制器。
+- 控制器层：每个业务域一个控制器，负责 HTTP 请求处理、参数校验、权限控制与响应封装。
+- 服务层：封装具体业务逻辑，如认证、用户、RBAC、安全与系统管理。
+- DTO 层：定义请求与响应的数据结构，提供示例与字段说明。
+- 中间件层：实现速率限制、IP 过滤、请求日志与安全拦截。
+- 存储层：使用 Django ORM 模型持久化数据，支持异步查询。
 
-**章节来源**
-- [src/api/app.py:60-84](file://src/api/app.py#L60-L84)
-- [src/api/v1/controllers/auth_controller.py:16-35](file://src/api/v1/controllers/auth_controller.py#L16-L35)
-- [src/api/v1/controllers/user_controller.py:33-52](file://src/api/v1/controllers/user_controller.py#L33-L52)
-- [src/api/v1/controllers/rbac_controller.py:38-57](file://src/api/v1/controllers/rbac_controller.py#L38-L57)
-- [src/api/v1/controllers/system_controller.py:60-79](file://src/api/v1/controllers/system_controller.py#L60-L79)
-- [src/api/v1/controllers/security_controller.py:21-40](file://src/api/v1/controllers/security_controller.py#L21-L40)
+章节来源
+- [src/api/app.py:17-30](file://src/api/app.py#L17-L30)
+- [src/api/v1/controllers/auth_controller.py:16-133](file://src/api/v1/controllers/auth_controller.py#L16-L133)
+- [src/api/v1/controllers/user_controller.py:33-283](file://src/api/v1/controllers/user_controller.py#L33-L283)
+- [src/api/v1/controllers/rbac_controller.py:38-351](file://src/api/v1/controllers/rbac_controller.py#L38-L351)
+- [src/api/v1/controllers/security_controller.py:21-302](file://src/api/v1/controllers/security_controller.py#L21-L302)
+- [src/api/v1/controllers/system_controller.py:60-734](file://src/api/v1/controllers/system_controller.py#L60-L734)
 
 ## 架构总览
-API 采用分层架构：控制器接收请求、服务层执行业务逻辑、DTO 进行数据契约约束、中间件提供横切关注点（安全、限流）。认证采用 Bearer Token，权限控制通过 RBAC 实现。
+API 采用分层架构：控制器接收请求，进行权限与参数校验，调用服务层执行业务逻辑，服务层通过仓储层访问数据库，最终返回 DTO 响应。中间件贯穿请求生命周期，提供安全与性能保障。
 
 ```mermaid
 graph TB
-Client["客户端"] --> Router["Ninja 路由器<br/>v1 路由文件"]
-Router --> Ctrl["控制器层<br/>各功能域控制器"]
-Ctrl --> Service["服务层<br/>业务逻辑"]
-Service --> DTO["DTO 层<br/>请求/响应模型"]
-Ctrl --> JWT["JWT 认证<br/>Bearer Token"]
-Ctrl --> RBAC["RBAC 权限<br/>权限校验"]
-Ctrl --> MW["中间件<br/>安全/限流"]
+Client["客户端"] --> Router["NinjaExtra 路由"]
+Router --> Ctrl["控制器层"]
+Ctrl --> Service["服务层"]
+Service --> Repo["仓储层"]
+Repo --> DB["数据库模型"]
+Ctrl --> Middlewares["中间件层"]
+Middlewares --> Redis["Redis 缓存"]
 ```
 
-**图表来源**
-- [src/api/v1/auth_api.py:13](file://src/api/v1/auth_api.py#L13)
-- [src/api/v1/user_api.py:18](file://src/api/v1/user_api.py#L18)
-- [src/api/v1/rbac_api.py:19](file://src/api/v1/rbac_api.py#L19)
-- [src/api/v1/system_api.py:27](file://src/api/v1/system_api.py#L27)
-- [src/api/v1/security_api.py:23](file://src/api/v1/security_api.py#L23)
-- [src/core/middlewares/security_middleware.py:14](file://src/core/middlewares/security_middleware.py#L14)
-- [src/core/middlewares/rate_limit_middleware.py:15](file://src/core/middlewares/rate_limit_middleware.py#L15)
+图表来源
+- [src/api/v1/controllers/auth_controller.py:16-133](file://src/api/v1/controllers/auth_controller.py#L16-L133)
+- [src/api/v1/controllers/user_controller.py:33-283](file://src/api/v1/controllers/user_controller.py#L33-L283)
+- [src/api/v1/controllers/rbac_controller.py:38-351](file://src/api/v1/controllers/rbac_controller.py#L38-L351)
+- [src/api/v1/controllers/security_controller.py:21-302](file://src/api/v1/controllers/security_controller.py#L21-L302)
+- [src/api/v1/controllers/system_controller.py:60-734](file://src/api/v1/controllers/system_controller.py#L60-L734)
+- [src/infrastructure/cache/redis_cache.py](file://src/infrastructure/cache/redis_cache.py)
 
 ## 详细组件分析
 
-### 认证 API
-- 基础路径：/api/v1/auth
-- 版本：v1
-- 认证：支持 Bearer Token；部分接口允许匿名访问（如登录）
-- 关键接口：
-  - POST /login：用户名/密码登录，返回访问令牌与刷新令牌
-  - POST /refresh：使用刷新令牌获取新的访问令牌
-  - POST /logout：撤销当前访问令牌
+### 认证接口
+- 服务端点
+  - POST /api/v1/auth/login：用户登录，返回访问令牌与刷新令牌
+  - POST /api/v1/auth/refresh：使用刷新令牌获取新的访问令牌
+  - POST /api/v1/auth/logout：用户登出，撤销当前访问令牌
+- 请求参数
+  - 登录：用户名、密码、设备信息等（见 DTO）
+  - 刷新：刷新令牌
+  - 登出：Authorization 头（Bearer Token）
+- 响应格式
+  - 成功：TokenResponseDTO（包含 access_token、refresh_token、token_type、expires_in、user）
+  - 失败：通用错误响应
+- 错误码
+  - 400：参数校验失败
+  - 401：认证失败、令牌无效
+  - 429：请求过于频繁（速率限制）
+  - 500：服务器内部错误
+- 示例
+  - 登录请求体：包含用户名、密码、设备信息
+  - 登录成功响应：包含访问令牌、刷新令牌与用户信息
+  - 刷新请求体：包含刷新令牌
+  - 刷新成功响应：新的访问令牌与刷新令牌
+  - 登出请求头：Authorization: Bearer <token>
+  - 登出成功响应：操作结果消息
+- 认证机制
+  - JWT 令牌签发与验证，支持访问令牌与刷新令牌
+  - 登出时撤销访问令牌（结合缓存或黑名单策略）
 
-请求示例（登录）
-- 方法：POST
-- 路径：/api/v1/auth/login
-- 请求头：Content-Type: application/json
-- 请求体（JSON Schema 示例）：包含用户名、密码、设备信息等字段
-- 成功响应：包含 access_token、refresh_token、token_type、expires_in、user 等字段
-- 失败响应：错误码与错误信息
-
-请求示例（刷新令牌）
-- 方法：POST
-- 路径：/api/v1/auth/refresh
-- 请求体：包含刷新令牌
-- 成功响应：新的访问令牌与刷新令牌
-- 失败响应：错误码与错误信息
-
-请求示例（登出）
-- 方法：POST
-- 路径：/api/v1/auth/logout
-- 请求头：Authorization: Bearer <token>
-- 成功响应：操作成功消息
-- 失败响应：错误码与错误信息
-
-认证流程序列图
-```mermaid
-sequenceDiagram
-participant Client as "客户端"
-participant AuthCtrl as "认证控制器"
-participant AuthService as "认证服务"
-participant TokenMgr as "JWT 管理"
-Client->>AuthCtrl : POST /api/v1/auth/login
-AuthCtrl->>AuthService : login(login_dto, ip, ua, device)
-AuthService->>TokenMgr : 生成访问令牌与刷新令牌
-TokenMgr-->>AuthService : 返回令牌对
-AuthService-->>AuthCtrl : TokenResponseDTO
-AuthCtrl-->>Client : {access_token, refresh_token, ...}
-Client->>AuthCtrl : POST /api/v1/auth/refresh
-AuthCtrl->>AuthService : refresh_access_token(refresh_dto)
-AuthService->>TokenMgr : 验证并签发新令牌
-TokenMgr-->>AuthService : 新令牌
-AuthService-->>AuthCtrl : TokenResponseDTO
-AuthCtrl-->>Client : {access_token, refresh_token, ...}
-```
-
-**图表来源**
-- [src/api/v1/controllers/auth_controller.py:36-105](file://src/api/v1/controllers/auth_controller.py#L36-L105)
-- [src/application/dto/auth/token_response_dto.py:9-32](file://src/application/dto/auth/token_response_dto.py#L9-L32)
-
-**章节来源**
+章节来源
 - [src/api/v1/auth_api.py:22-74](file://src/api/v1/auth_api.py#L22-L74)
 - [src/api/v1/controllers/auth_controller.py:36-133](file://src/api/v1/controllers/auth_controller.py#L36-L133)
 - [src/application/dto/auth/token_response_dto.py:9-32](file://src/application/dto/auth/token_response_dto.py#L9-L32)
 
-### 用户管理 API
-- 基础路径：/api/v1/users
-- 版本：v1
-- 认证：除创建用户外，其他接口需 Bearer Token
-- 关键接口：
-  - POST /users：创建用户
-  - GET /users/{user_id}：获取用户详情
-  - GET /users：获取用户列表（分页）
-  - PUT /users/{user_id}：更新用户
-  - DELETE /users/{user_id}：删除用户
-  - POST /users/change-password：修改密码（需认证）
-  - GET /me：获取当前用户信息（需认证）
+### 用户管理接口
+- 服务端点
+  - POST /api/v1/users：创建用户
+  - GET /api/v1/users/{user_id}：获取用户详情
+  - GET /api/v1/users：获取用户列表（支持分页）
+  - PUT /api/v1/users/{user_id}：更新用户
+  - DELETE /api/v1/users/{user_id}：删除用户
+  - POST /api/v1/users/change-password：修改密码（需认证）
+  - GET /api/v1/me：获取当前用户信息（需认证）
+- 请求参数
+  - 创建用户：用户名、邮箱、密码、姓名、电话等（见 DTO）
+  - 更新用户：用户 ID 与更新字段
+  - 修改密码：旧密码、新密码
+  - 获取当前用户：Authorization 头（Bearer Token）
+- 响应格式
+  - 成功：UserResponseDTO 或分页列表 UserListResponse
+  - 失败：通用错误响应
+- 错误码
+  - 400：参数校验失败
+  - 401：未登录或令牌无效
+  - 404：用户不存在
+  - 409：资源冲突（如重复）
+  - 429：请求过于频繁
+  - 500：服务器内部错误
+- 示例
+  - 创建用户请求体：用户名、邮箱、密码等
+  - 创建用户成功响应：用户信息
+  - 获取当前用户请求头：Authorization: Bearer <token>
+  - 获取当前用户成功响应：当前用户信息
 
-请求示例（创建用户）
-- 方法：POST
-- 路径：/api/v1/users
-- 请求体：包含用户名、邮箱、密码、姓名、电话等字段
-- 成功响应：用户信息 DTO
-- 失败响应：错误码与错误信息
-
-请求示例（获取当前用户）
-- 方法：GET
-- 路径：/api/v1/me
-- 请求头：Authorization: Bearer <token>
-- 成功响应：用户信息 DTO
-- 失败响应：错误码与错误信息
-
-用户管理流程图
-```mermaid
-flowchart TD
-Start(["进入用户管理"]) --> Create["创建用户"]
-Start --> GetDetail["获取用户详情"]
-Start --> ListUsers["获取用户列表"]
-Start --> UpdateUser["更新用户"]
-Start --> DeleteUser["删除用户"]
-Start --> ChangePwd["修改密码"]
-Start --> GetCurrent["获取当前用户"]
-Create --> RespCreate["返回用户信息"]
-GetDetail --> RespDetail["返回用户信息"]
-ListUsers --> RespList["返回分页列表"]
-UpdateUser --> RespUpdate["返回更新后的用户信息"]
-DeleteUser --> RespDelete["返回删除成功消息"]
-ChangePwd --> RespChange["返回修改成功消息"]
-GetCurrent --> RespMe["返回当前用户信息"]
-```
-
-**图表来源**
-- [src/api/v1/user_api.py:50-150](file://src/api/v1/user_api.py#L50-L150)
-- [src/api/v1/controllers/user_controller.py:53-283](file://src/api/v1/controllers/user_controller.py#L53-L283)
-
-**章节来源**
+章节来源
 - [src/api/v1/user_api.py:50-150](file://src/api/v1/user_api.py#L50-L150)
 - [src/api/v1/controllers/user_controller.py:53-283](file://src/api/v1/controllers/user_controller.py#L53-L283)
 - [src/application/dto/user/user_create_dto.py:9-34](file://src/application/dto/user/user_create_dto.py#L9-L34)
 
-### RBAC 管理 API
-- 基础路径：/api/v1/rbac
-- 版本：v1
-- 认证：匿名可访问（部分管理接口可能需要更高权限）
-- 关键接口：
-  - 角色管理：POST/GET/PUT/DELETE /roles
-  - 权限管理：GET /permissions、POST /permissions/init
-  - 用户角色关联：POST/DELETE /users/{user_id}/roles、GET /users/{user_id}/roles、GET /users/{user_id}/permissions/check
+### 权限管理接口
+- 服务端点
+  - 角色管理
+    - POST /api/v1/rbac/roles：创建角色
+    - GET /api/v1/rbac/roles/{role_id}：获取角色详情
+    - GET /api/v1/rbac/roles：获取角色列表（支持过滤）
+    - PUT /api/v1/rbac/roles/{role_id}：更新角色
+    - DELETE /api/v1/rbac/roles/{role_id}：删除角色
+  - 权限管理
+    - GET /api/v1/rbac/permissions：获取权限列表（支持过滤）
+    - POST /api/v1/rbac/permissions/init：初始化系统权限
+  - 用户角色关联
+    - POST /api/v1/rbac/users/{user_id}/roles：分配角色给用户
+    - DELETE /api/v1/rbac/users/{user_id}/roles/{role_id}：从用户移除角色
+    - GET /api/v1/rbac/users/{user_id}/roles：获取用户角色权限
+    - GET /api/v1/rbac/users/{user_id}/permissions/check：检查用户权限
+- 请求参数
+  - 创建角色：角色名称、代码、描述、权限代码列表（见 DTO）
+  - 更新角色：角色 ID 与更新字段
+  - 初始化系统权限：无请求体
+  - 分配角色：用户 ID 与角色 ID 列表（见 DTO）
+  - 检查权限：用户 ID 与权限代码
+- 响应格式
+  - 成功：RoleResponseDTO、PermissionListResponse、UserRolesResponseDTO 或消息响应
+  - 失败：通用错误响应
+- 错误码
+  - 400：参数校验失败
+  - 404：角色/用户不存在
+  - 429：请求过于频繁
+  - 500：服务器内部错误
 
-请求示例（创建角色）
-- 方法：POST
-- 路径：/api/v1/rbac/roles
-- 请求体：包含角色名称、代码、描述、权限代码列表
-- 成功响应：角色信息 DTO
-- 失败响应：错误码与错误信息
-
-请求示例（初始化系统权限）
-- 方法：POST
-- 路径：/api/v1/rbac/permissions/init
-- 成功响应：初始化成功消息
-- 失败响应：错误码与错误信息
-
-RBAC 管理流程图
-```mermaid
-flowchart TD
-Start(["进入 RBAC 管理"]) --> CreateRole["创建角色"]
-Start --> GetRole["获取角色详情"]
-Start --> ListRoles["获取角色列表"]
-Start --> UpdateRole["更新角色"]
-Start --> DeleteRole["删除角色"]
-Start --> InitPerms["初始化系统权限"]
-Start --> AssignRole["为用户分配角色"]
-Start --> RemoveRole["从用户移除角色"]
-Start --> GetUserRoles["获取用户角色权限"]
-Start --> CheckPerm["检查用户权限"]
-CreateRole --> RespRole["返回角色信息"]
-GetRole --> RespRole
-ListRoles --> RespList["返回角色列表"]
-UpdateRole --> RespRole
-DeleteRole --> RespDel["返回删除成功消息"]
-InitPerms --> RespInit["返回初始化成功消息"]
-AssignRole --> RespAssign["返回分配成功消息"]
-RemoveRole --> RespRemove["返回移除成功消息"]
-GetUserRoles --> RespUserRoles["返回用户角色权限"]
-CheckPerm --> RespCheck["返回权限检查结果"]
-```
-
-**图表来源**
-- [src/api/v1/rbac_api.py:45-184](file://src/api/v1/rbac_api.py#L45-L184)
-- [src/api/v1/controllers/rbac_controller.py:60-351](file://src/api/v1/controllers/rbac_controller.py#L60-L351)
-
-**章节来源**
+章节来源
 - [src/api/v1/rbac_api.py:45-184](file://src/api/v1/rbac_api.py#L45-L184)
 - [src/api/v1/controllers/rbac_controller.py:60-351](file://src/api/v1/controllers/rbac_controller.py#L60-L351)
 - [src/application/dto/rbac/role_create_dto.py:9-30](file://src/application/dto/rbac/role_create_dto.py#L9-L30)
 
-### 系统管理 API
-- 基础路径：/api/v1/system
-- 版本：v1
-- 认证：匿名可访问（健康检查等）
-- 关键接口：
-  - 部门管理：POST/GET/PUT/DELETE /depts、GET /depts/tree
-  - 菜单管理：POST/GET/PUT/DELETE /menus、GET /menus/tree
-  - 角色管理：POST/GET/PUT/DELETE /roles、POST /roles/{role_id}/menus、GET /roles/{role_id}/menus
-  - 用户角色管理：POST /users/{user_id}/roles、GET /users/{user_id}/roles、GET /users/{user_id}/menus
-  - 操作日志：GET /operation-logs、GET /operation-logs/{log_id}
+### 安全防护接口
+- 服务端点
+  - IP 黑名单
+    - POST /api/v1/security/blacklist：添加IP到黑名单
+    - DELETE /api/v1/security/blacklist/{ip_address}：从黑名单移除IP
+    - GET /api/v1/security/blacklist：获取黑名单列表
+  - IP 白名单
+    - POST /api/v1/security/whitelist：添加IP到白名单
+    - DELETE /api/v1/security/whitelist/{ip_address}：从白名单移除IP
+    - GET /api/v1/security/whitelist：获取白名单列表
+  - 限流规则
+    - POST /api/v1/security/rate-limit：创建限流规则
+    - PUT /api/v1/security/rate-limit/{rule_id}/toggle：切换限流规则状态
+    - DELETE /api/v1/security/rate-limit/{rule_id}：删除限流规则
+    - GET /api/v1/security/rate-limit：获取限流规则列表
+  - 安全状态
+    - GET /api/v1/security/status：获取安全状态
+- 请求参数
+  - 添加黑名单/白名单：IP 地址、原因/描述、永久标记等
+  - 创建限流规则：规则名称、端点、HTTP 方法、速率、周期、作用域、描述（见 DTO）
+  - 切换/删除限流规则：规则 ID
+- 响应格式
+  - 成功：IPBlacklistResponseDTO、IPWhitelistResponseDTO、RateLimitRuleResponseDTO 或消息响应
+  - 失败：通用错误响应
+- 错误码
+  - 400：参数校验失败
+  - 404：资源不存在
+  - 429：请求过于频繁
+  - 500：服务器内部错误
 
-系统管理流程图
-```mermaid
-flowchart TD
-Start(["进入系统管理"]) --> Health["健康检查"]
-Start --> Depts["部门管理"]
-Start --> Menus["菜单管理"]
-Start --> Roles["角色管理"]
-Start --> UserRoles["用户角色管理"]
-Start --> Logs["操作日志管理"]
-Health --> RespHealth["返回健康状态"]
-Depts --> RespDepts["返回部门信息/列表"]
-Menus --> RespMenus["返回菜单信息/列表"]
-Roles --> RespRoles["返回角色信息/列表"]
-UserRoles --> RespUserRoles["返回用户角色/菜单"]
-Logs --> RespLogs["返回日志列表/详情"]
-```
+章节来源
+- [src/api/v1/security_api.py:35-285](file://src/api/v1/security_api.py#L35-L285)
+- [src/api/v1/controllers/security_controller.py:43-302](file://src/api/v1/controllers/security_controller.py#L43-L302)
+- [src/application/dto/security/rate_limit_rule_dto.py:9-36](file://src/application/dto/security/rate_limit_rule_dto.py#L9-L36)
 
-**图表来源**
+### 系统管理接口
+- 服务端点
+  - 部门管理
+    - POST /api/v1/system/depts：创建部门
+    - GET /api/v1/system/depts/{dept_id}：获取部门详情
+    - PUT /api/v1/system/depts/{dept_id}：更新部门
+    - DELETE /api/v1/system/depts/{dept_id}：删除部门
+    - GET /api/v1/system/depts：获取部门列表（支持过滤）
+    - GET /api/v1/system/depts/tree：获取部门树形结构
+  - 菜单管理
+    - POST /api/v1/system/menus：创建菜单
+    - GET /api/v1/system/menus/{menu_id}：获取菜单详情
+    - PUT /api/v1/system/menus/{menu_id}：更新菜单
+    - DELETE /api/v1/system/menus/{menu_id}：删除菜单
+    - GET /api/v1/system/menus：获取菜单列表（支持过滤）
+    - GET /api/v1/system/menus/tree：获取菜单树形结构
+  - 角色管理
+    - POST /api/v1/system/roles：创建角色
+    - GET /api/v1/system/roles/{role_id}：获取角色详情
+    - PUT /api/v1/system/roles/{role_id}：更新角色
+    - DELETE /api/v1/system/roles/{role_id}：删除角色
+    - GET /api/v1/system/roles：获取角色列表（支持过滤）
+    - POST /api/v1/system/roles/{role_id}/menus：为角色分配菜单权限
+    - GET /api/v1/system/roles/{role_id}/menus：获取角色的菜单列表
+  - 用户角色管理
+    - POST /api/v1/system/users/{user_id}/roles：为用户分配角色
+    - GET /api/v1/system/users/{user_id}/roles：获取用户的角色列表
+    - GET /api/v1/system/users/{user_id}/menus：获取用户的菜单权限
+  - 操作日志管理
+    - GET /api/v1/system/operation-logs：获取操作日志列表（支持多条件过滤与分页）
+    - GET /api/v1/system/operation-logs/{log_id}：获取操作日志详情
+  - 健康检查
+    - GET /api/v1/system/health：健康检查
+- 请求参数
+  - 部门/菜单/角色：创建、更新 DTO
+  - 分配菜单/角色：批量 ID 列表
+  - 操作日志：模块、方法、创建者 ID、起止时间、响应码、页码、每页大小
+- 响应格式
+  - 成功：DeptResponseDTO、MenuResponseDTO、RoleResponseDTO、LogResponseDTO 或分页列表
+  - 失败：通用错误响应
+- 错误码
+  - 400：参数校验失败
+  - 404：资源不存在
+  - 429：请求过于频繁
+  - 500：服务器内部错误
+
+章节来源
 - [src/api/v1/system_api.py:73-409](file://src/api/v1/system_api.py#L73-L409)
 - [src/api/v1/controllers/system_controller.py:107-734](file://src/api/v1/controllers/system_controller.py#L107-L734)
 
-**章节来源**
-- [src/api/v1/system_api.py:73-409](file://src/api/v1/system_api.py#L73-L409)
-- [src/api/v1/controllers/system_controller.py:107-734](file://src/api/v1/controllers/system_controller.py#L107-L734)
-
-### 安全配置 API
-- 基础路径：/api/v1/security
-- 版本：v1
-- 认证：匿名可访问
-- 关键接口：
-  - IP 黑名单：POST/DELETE/GET /blacklist
-  - IP 白名单：POST/DELETE/GET /whitelist
-  - 限流规则：POST/PUT/DELETE/GET /rate-limit
-  - 安全状态：GET /security/status
-
-安全配置流程图
-```mermaid
-flowchart TD
-Start(["进入安全配置"]) --> Blacklist["IP 黑名单管理"]
-Start --> Whitelist["IP 白名单管理"]
-Start --> RateLimit["限流规则管理"]
-Start --> Status["获取安全状态"]
-Blacklist --> RespBlacklist["返回黑名单条目"]
-Whitelist --> RespWhitelist["返回白名单条目"]
-RateLimit --> RespRules["返回限流规则列表"]
-Status --> RespStatus["返回安全状态"]
-```
-
-**图表来源**
-- [src/api/v1/security_api.py:35-285](file://src/api/v1/security_api.py#L35-L285)
-- [src/api/v1/controllers/security_controller.py:43-302](file://src/api/v1/controllers/security_controller.py#L43-L302)
-
-**章节来源**
-- [src/api/v1/security_api.py:35-285](file://src/api/v1/security_api.py#L35-L285)
-- [src/api/v1/controllers/security_controller.py:43-302](file://src/api/v1/controllers/security_controller.py#L43-L302)
-
-## 依赖分析
-- 控制器依赖服务层：控制器通过依赖注入或直接实例化服务类，实现业务逻辑解耦。
-- DTO 作为契约：所有接口的请求/响应均通过 DTO 明确字段与示例，避免前后端不一致。
-- 中间件提供横切能力：安全中间件统一注入安全响应头；限流中间件进行基础频率限制。
+## 依赖关系分析
+- 控制器依赖服务层，服务层依赖仓储层，仓储层依赖数据库模型。
+- 中间件贯穿控制器与服务层之间，提供统一的安全与性能控制。
+- DTO 作为契约定义，确保请求与响应的结构稳定。
 
 ```mermaid
 graph TB
-Ctrl["控制器"] --> Service["服务层"]
-Ctrl --> DTO["DTO 层"]
-Ctrl --> MW["中间件"]
-Service --> DTO
-MW --> Ctrl
+CtrlAuth["认证控制器"] --> SvcAuth["认证服务"]
+CtrlUser["用户控制器"] --> SvcUser["用户服务"]
+CtrlRbac["RBAC 控制器"] --> SvcRbac["RBAC 服务"]
+CtrlSec["安全控制器"] --> SvcSec["安全服务"]
+CtrlSys["系统管理控制器"] --> SvcSys["系统服务"]
+SvcAuth --> RepoUser["用户仓储"]
+SvcUser --> RepoUser
+SvcRbac --> RepoRbac["RBAC 仓储"]
+SvcSec --> RepoSec["安全仓储"]
+SvcSys --> RepoSys["系统仓储"]
+RepoUser --> ModelUser["用户模型"]
+RepoRbac --> ModelRbac["RBAC 模型"]
+RepoSec --> ModelSec["安全模型"]
+RepoSys --> ModelSys["系统模型"]
+CtrlAuth --> Mid["中间件"]
+CtrlUser --> Mid
+CtrlRbac --> Mid
+CtrlSec --> Mid
+CtrlSys --> Mid
 ```
 
-**图表来源**
+图表来源
 - [src/api/v1/controllers/auth_controller.py:27-34](file://src/api/v1/controllers/auth_controller.py#L27-L34)
 - [src/api/v1/controllers/user_controller.py:44-51](file://src/api/v1/controllers/user_controller.py#L44-L51)
 - [src/api/v1/controllers/rbac_controller.py:49-56](file://src/api/v1/controllers/rbac_controller.py#L49-L56)
-- [src/api/v1/controllers/system_controller.py:71-78](file://src/api/v1/controllers/system_controller.py#L71-L78)
 - [src/api/v1/controllers/security_controller.py:32-39](file://src/api/v1/controllers/security_controller.py#L32-L39)
-
-**章节来源**
-- [src/api/v1/controllers/auth_controller.py:27-34](file://src/api/v1/controllers/auth_controller.py#L27-L34)
-- [src/api/v1/controllers/user_controller.py:44-51](file://src/api/v1/controllers/user_controller.py#L44-L51)
-- [src/api/v1/controllers/rbac_controller.py:49-56](file://src/api/v1/controllers/rbac_controller.py#L49-L56)
 - [src/api/v1/controllers/system_controller.py:71-78](file://src/api/v1/controllers/system_controller.py#L71-L78)
-- [src/api/v1/controllers/security_controller.py:32-39](file://src/api/v1/controllers/security_controller.py#L32-L39)
+- [src/infrastructure/repositories/user_repo_impl.py](file://src/infrastructure/repositories/user_repo_impl.py)
+- [src/infrastructure/repositories/rbac_repo_impl.py](file://src/infrastructure/repositories/rbac_repo_impl.py)
+- [src/infrastructure/repositories/security_repo_impl.py](file://src/infrastructure/repositories/security_repo_impl.py)
+- [src/infrastructure/repositories/system_repo_impl.py](file://src/infrastructure/repositories/system_repo_impl.py)
+- [src/infrastructure/persistence/models/security_models.py](file://src/infrastructure/persistence/models/security_models.py)
 
 ## 性能考虑
-- 限流策略：内置基础限流中间件，默认每分钟 100 次请求（可配置），超过阈值返回 429。
-- 缓存利用：建议在生产环境使用 Redis 缓存存储限流计数与令牌缓存，提升性能与一致性。
-- 分页查询：用户列表、日志列表等接口支持分页参数，建议前端合理设置 page_size。
-- 响应头安全：安全中间件在生产环境注入安全响应头，减少 XSS、点击劫持等风险。
-- 异步处理：登录、刷新等认证流程使用异步服务，降低阻塞。
+- 速率限制：通过限流规则对端点进行频率控制，支持按 IP 或用户维度限流。
+- 缓存：使用 Redis 缓存热点数据与令牌状态，降低数据库压力。
+- 异步查询：仓储层使用异步 ORM 查询，提升高并发下的响应速度。
+- 中间件优化：请求日志、安全拦截与 IP 过滤在中间件层统一处理，减少控制器负担。
 
-**章节来源**
-- [src/core/middlewares/rate_limit_middleware.py:15-112](file://src/core/middlewares/rate_limit_middleware.py#L15-L112)
-- [src/core/middlewares/security_middleware.py:14-54](file://src/core/middlewares/security_middleware.py#L14-L54)
+章节来源
+- [src/core/middlewares/rate_limit_middleware.py](file://src/core/middlewares/rate_limit_middleware.py)
+- [src/core/middlewares/security_middleware.py](file://src/core/middlewares/security_middleware.py)
+- [src/core/middlewares/ip_limit_middleware.py](file://src/core/middlewares/ip_limit_middleware.py)
+- [src/core/middlewares/request_logging_middleware.py](file://src/core/middlewares/request_logging_middleware.py)
+- [src/infrastructure/cache/redis_cache.py](file://src/infrastructure/cache/redis_cache.py)
 
 ## 故障排除指南
-- 认证失败：检查 Authorization 头是否为 Bearer Token，确认令牌未过期且有效。
-- 权限不足：RBAC 接口需具备相应角色/权限，检查用户角色与权限分配。
-- 资源不存在：用户、角色、菜单、日志等资源不存在时返回明确错误信息。
-- 请求过于频繁：触发限流中间件，等待冷却或调整调用频率。
-- 数据验证错误：请求体不符合 DTO 字段约束（长度、格式等），修正后重试。
+- 认证失败
+  - 检查 Authorization 头格式是否为 Bearer Token
+  - 确认令牌未过期且未被撤销
+  - 查看登录日志与安全状态
+- 速率限制触发
+  - 检查限流规则配置与当前请求频率
+  - 调整请求间隔或联系管理员调整规则
+- 资源不存在
+  - 确认 ID 参数正确且资源存在
+  - 检查软删除状态与过滤条件
+- 数据库异常
+  - 查看仓储层异常与模型约束
+  - 确认迁移脚本执行状态
 
-**章节来源**
-- [src/api/v1/user_api.py:63-112](file://src/api/v1/user_api.py#L63-L112)
-- [src/api/v1/rbac_api.py:58-103](file://src/api/v1/rbac_api.py#L58-L103)
-- [src/api/v1/system_api.py:87-122](file://src/api/v1/system_api.py#L87-L122)
-- [src/core/middlewares/rate_limit_middleware.py:58-66](file://src/core/middlewares/rate_limit_middleware.py#L58-L66)
+章节来源
+- [src/api/v1/controllers/auth_controller.py:113-133](file://src/api/v1/controllers/auth_controller.py#L113-L133)
+- [src/api/v1/controllers/user_controller.py:196-283](file://src/api/v1/controllers/user_controller.py#L196-L283)
+- [src/api/v1/controllers/rbac_controller.py:239-351](file://src/api/v1/controllers/rbac_controller.py#L239-L351)
+- [src/api/v1/controllers/security_controller.py:43-302](file://src/api/v1/controllers/security_controller.py#L43-L302)
+- [src/api/v1/controllers/system_controller.py:107-734](file://src/api/v1/controllers/system_controller.py#L107-L734)
 
 ## 结论
-本 API 提供了完善的认证、用户、RBAC、系统管理与安全配置能力，采用清晰的分层架构与 DTO 契约，便于维护与扩展。建议在生产环境中启用 Redis 缓存、完善限流规则、加强日志审计，并持续优化分页与批量接口性能。
+本 API 提供了完整的认证、用户、权限、安全与系统管理能力，采用清晰的分层架构与版本化设计，具备良好的扩展性与可维护性。客户端开发者可依据本文档快速集成，同时通过中间件与缓存机制获得稳定的性能表现。
 
 ## 附录
 
-### API 版本管理与兼容性
-- 版本策略：所有接口位于 /api/v1 路径，未来升级通过新增版本路径保持向后兼容。
-- 兼容性考虑：新增字段采用可选，避免破坏现有客户端；变更字段需在新版本中声明。
+### API 版本管理与向后兼容性
+- 版本号：1.0.0
+- 命名空间：/api/v1
+- 向后兼容性：遵循语义化版本控制，重大变更通过新增版本提供迁移路径
 
-**章节来源**
-- [src/api/app.py:71-75](file://src/api/app.py#L71-L75)
+章节来源
+- [src/api/app.py:17-21](file://src/api/app.py#L17-L21)
 
-### 认证机制与权限要求
-- Bearer Token：所有受保护接口需在 Authorization 头中携带 Bearer Token。
-- 权限控制：RBAC 控制器与用户控制器中对特定接口标注权限要求（如 IsAuthenticated）。
+### 认证与权限要求
+- 认证方式：JWT Bearer Token
+- 权限控制：控制器内通过权限装饰器与中间件实现细粒度访问控制
+- 访问策略：公开端点（如登录）与受保护端点（如修改密码、系统管理）
 
-**章节来源**
-- [src/api/v1/user_api.py:36-47](file://src/api/v1/user_api.py#L36-L47)
-- [src/api/v1/controllers/user_controller.py:232-233](file://src/api/v1/controllers/user_controller.py#L232-L233)
+章节来源
+- [src/api/v1/controllers/auth_controller.py:16-133](file://src/api/v1/controllers/auth_controller.py#L16-L133)
+- [src/api/v1/controllers/user_controller.py:33-283](file://src/api/v1/controllers/user_controller.py#L33-L283)
+- [src/api/v1/controllers/rbac_controller.py:38-351](file://src/api/v1/controllers/rbac_controller.py#L38-L351)
+- [src/api/v1/controllers/security_controller.py:21-302](file://src/api/v1/controllers/security_controller.py#L21-L302)
+- [src/api/v1/controllers/system_controller.py:60-734](file://src/api/v1/controllers/system_controller.py#L60-L734)
 
-### 请求与响应示例
-- 登录成功响应示例：包含 access_token、refresh_token、token_type、expires_in、user 等字段。
-- 创建用户成功响应示例：返回创建后的用户信息 DTO。
-- 创建角色成功响应示例：返回角色信息 DTO（包含名称、代码、权限列表等）。
+### 速率限制与安全策略
+- 速率限制：基于限流规则的端点级频率控制
+- IP 黑/白名单：支持黑名单阻断与白名单放行
+- 安全日志：记录访问状态与规则统计
 
-**章节来源**
-- [src/application/dto/auth/token_response_dto.py:18-27](file://src/application/dto/auth/token_response_dto.py#L18-L27)
-- [src/application/dto/user/user_create_dto.py:19-29](file://src/application/dto/user/user_create_dto.py#L19-L29)
-- [src/application/dto/rbac/role_create_dto.py:17-25](file://src/application/dto/rbac/role_create_dto.py#L17-L25)
-
-### API 使用最佳实践
-- 统一使用 Bearer Token 进行鉴权，妥善保管 refresh_token。
-- 对敏感操作（修改密码、删除用户、分配角色）增加二次确认与审计日志。
-- 合理设置分页参数，避免一次性拉取过多数据。
-- 在高并发场景下启用 Redis 缓存与更细粒度的限流规则。
-
-**章节来源**
-- [src/core/middlewares/security_middleware.py:47-51](file://src/core/middlewares/security_middleware.py#L47-L51)
-- [src/core/middlewares/rate_limit_middleware.py:38-39](file://src/core/middlewares/rate_limit_middleware.py#L38-L39)
-
-### 常见使用场景
-- 管理员登录后为用户分配角色并检查权限。
-- 系统初始化时创建默认角色与权限，再批量分配给用户。
-- 安全运维人员通过 IP 黑/白名单与限流规则保护 API。
-
-**章节来源**
-- [src/api/v1/rbac_api.py:121-128](file://src/api/v1/rbac_api.py#L121-L128)
-- [src/api/v1/security_api.py:35-94](file://src/api/v1/security_api.py#L35-L94)
+章节来源
+- [src/api/v1/security_api.py:161-285](file://src/api/v1/security_api.py#L161-L285)
+- [src/api/v1/controllers/security_controller.py:189-302](file://src/api/v1/controllers/security_controller.py#L189-L302)
