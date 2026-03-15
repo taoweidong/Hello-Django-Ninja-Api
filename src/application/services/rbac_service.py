@@ -50,24 +50,24 @@ class RBACService:
 
         # 添加权限
         if role_dto.permissions:
-            perms = await Permission.objects.filter(code__in=role_dto.permissions).alist()
+            perms = [p async for p in Permission.objects.filter(code__in=role_dto.permissions)]
             await role.permissions.aset(perms)
 
-        return self._to_role_response(role)
+        return await self._to_role_response(role)
 
     async def get_role(self, role_id: str) -> RoleResponseDTO | None:
         """获取角色"""
         role = await self.rbac_repo.get_role_by_id(role_id)
         if not role:
             return None
-        return self._to_role_response(role)
+        return await self._to_role_response(role)
 
     async def get_role_by_code(self, code: str) -> RoleResponseDTO | None:
         """根据代码获取角色"""
         role = await self.rbac_repo.get_role_by_code(code)
         if not role:
             return None
-        return self._to_role_response(role)
+        return await self._to_role_response(role)
 
     async def update_role(self, role_id: str, role_dto: RoleUpdateDTO) -> RoleResponseDTO:
         """更新角色"""
@@ -88,10 +88,10 @@ class RBACService:
 
         # 更新权限
         if role_dto.permissions is not None:
-            perms = await Permission.objects.filter(code__in=role_dto.permissions).alist()
+            perms = [p async for p in Permission.objects.filter(code__in=role_dto.permissions)]
             await role.permissions.aset(perms)
 
-        return self._to_role_response(role)
+        return await self._to_role_response(role)
 
     async def delete_role(self, role_id: str) -> bool:
         """删除角色"""
@@ -108,7 +108,7 @@ class RBACService:
     async def list_roles(self, is_active: bool = None) -> list[RoleResponseDTO]:
         """获取角色列表"""
         roles = await self.rbac_repo.list_roles(is_active)
-        return [self._to_role_response(role) for role in roles]
+        return [await self._to_role_response(role) for role in roles]
 
     # ========== 权限管理 ==========
 
@@ -147,7 +147,7 @@ class RBACService:
     ) -> list[PermissionResponseDTO]:
         """获取权限列表"""
         permissions = await self.rbac_repo.list_permissions(is_active, resource)
-        return [self._to_permission_response(perm) for perm in permissions]
+        return [await self._to_permission_response(perm) for perm in permissions]
 
     async def initialize_system_permissions(self) -> list[PermissionResponseDTO]:
         """初始化系统权限"""
@@ -219,7 +219,7 @@ class RBACService:
     async def get_user_roles(self, user_id: str) -> UserRolesResponseDTO:
         """获取用户的所有角色"""
         roles = await self.rbac_repo.get_user_roles(user_id)
-        role_responses = [self._to_role_response(role) for role in roles]
+        role_responses = [await self._to_role_response(role) for role in roles]
 
         permissions = await self.rbac_repo.get_user_permissions(user_id)
         permission_codes = [perm.code for perm in permissions]
@@ -252,33 +252,66 @@ class RBACService:
 
     # ========== 辅助方法 ==========
 
-    def _to_role_response(self, role: Role) -> RoleResponseDTO:
-        """转换为角色响应DTO"""
-        permissions = list(role.permissions.values_list("code", flat=True))
-        return RoleResponseDTO(
-            role_id=str(role.id),
-            name=role.name,
-            code=role.code,
-            description=role.description,
-            permissions=permissions,
-            is_system=role.is_system,
-            is_active=role.is_active,
-            created_at=role.created_at,
-            updated_at=role.updated_at,
-        )
+    async def _to_role_response(self, role) -> RoleResponseDTO:
+        """转换为角色响应DTO - 支持Role模型和RoleEntity"""
+        from src.domain.rbac.entities.role_entity import RoleEntity
 
-    def _to_permission_response(self, permission: Permission) -> PermissionResponseDTO:
-        """转换为权限响应DTO"""
-        return PermissionResponseDTO(
-            permission_id=str(permission.id),
-            name=permission.name,
-            code=permission.code,
-            resource=permission.resource,
-            action=permission.action,
-            description=permission.description,
-            is_active=permission.is_active,
-            created_at=permission.created_at,
-        )
+        if isinstance(role, RoleEntity):
+            # role是RoleEntity对象
+            return RoleResponseDTO(
+                role_id=role.role_id,
+                name=role.name,
+                code=role.code,
+                description=role.description,
+                permissions=role.permissions,
+                is_system=role.is_system,
+                is_active=role.is_active,
+                created_at=role.created_at,
+                updated_at=role.updated_at,
+            )
+        else:
+            # role是Role模型对象
+            permissions = [p async for p in role.permissions.values_list("code", flat=True)]
+            return RoleResponseDTO(
+                role_id=str(role.id),
+                name=role.name,
+                code=role.code,
+                description=role.description,
+                permissions=permissions,
+                is_system=role.is_system,
+                is_active=role.is_active,
+                created_at=role.created_at,
+                updated_at=role.updated_at,
+            )
+
+    async def _to_permission_response(self, permission) -> PermissionResponseDTO:
+        """转换为权限响应DTO - 支持Permission模型和PermissionEntity"""
+        from src.domain.rbac.entities.permission_entity import PermissionEntity
+
+        if isinstance(permission, PermissionEntity):
+            # permission是PermissionEntity对象
+            return PermissionResponseDTO(
+                permission_id=permission.permission_id,
+                name=permission.name,
+                code=permission.code,
+                resource=permission.resource,
+                action=permission.action,
+                description=permission.description,
+                is_active=permission.is_active,
+                created_at=permission.created_at,
+            )
+        else:
+            # permission是Permission模型对象
+            return PermissionResponseDTO(
+                permission_id=str(permission.id),
+                name=permission.name,
+                code=permission.code,
+                resource=permission.resource,
+                action=permission.action,
+                description=permission.description,
+                is_active=permission.is_active,
+                created_at=permission.created_at,
+            )
 
 
 # 全局实例

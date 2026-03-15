@@ -66,7 +66,7 @@ class SecurityRepositoryImpl(SecurityRepository):
             queryset = queryset.filter(is_permanent=True) | queryset.filter(
                 expires_at__gt=datetime.now()
             )
-        models = await queryset.alist()
+        models = [m async for m in queryset]
         return [self._blacklist_model_to_entity(m) for m in models]
 
     # ========== IP白名单 ==========
@@ -104,7 +104,7 @@ class SecurityRepositoryImpl(SecurityRepository):
         queryset = IPWhitelist.objects.all()
         if not include_inactive:
             queryset = queryset.filter(is_active=True)
-        models = await queryset.alist()
+        models = [m async for m in queryset]
         return [self._whitelist_model_to_entity(m) for m in models]
 
     # ========== 限流规则 ==========
@@ -154,7 +154,7 @@ class SecurityRepositoryImpl(SecurityRepository):
         queryset = RateLimitRule.objects.all()
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active)
-        models = await queryset.alist()
+        models = [m async for m in queryset]
         return [self._rate_limit_model_to_entity(m) for m in models]
 
     # ========== 限流记录 ==========

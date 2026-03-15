@@ -44,8 +44,8 @@ class JWTManager:
             "permissions": permissions or [],
             "org_id": org_id,
             "type": "access",
-            "exp": expire,
-            "iat": now,
+            "exp": int(expire.timestamp()),
+            "iat": int(now.timestamp()),
             "jti": str(uuid.uuid4()),
         }
 
@@ -68,8 +68,8 @@ class JWTManager:
             "user_id": user_id,
             "username": username,
             "type": "refresh",
-            "exp": expire,
-            "iat": now,
+            "exp": int(expire.timestamp()),
+            "iat": int(now.timestamp()),
             "jti": str(uuid.uuid4()),
         }
 

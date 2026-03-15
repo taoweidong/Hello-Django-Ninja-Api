@@ -91,7 +91,7 @@ class CRUDRepository(Generic[M, E], ABC):
         返回:
             实体列表
         """
-        models = await self._model_class.objects.all().alist()
+        models = [m async for m in self._model_class.objects.all()]
         return [self._converter.to_entity(model) for model in models]
 
     async def list_all(self, page: int = 1, page_size: int = 10) -> list[E]:
@@ -106,7 +106,7 @@ class CRUDRepository(Generic[M, E], ABC):
             实体列表
         """
         offset = (page - 1) * page_size
-        models = await self._model_class.objects.all()[offset : offset + page_size].alist()
+        models = [m async for m in self._model_class.objects.all()[offset : offset + page_size]]
         return [self._converter.to_entity(model) for model in models]
 
     async def save(self, entity: E) -> E:
@@ -219,9 +219,9 @@ class CRUDRepository(Generic[M, E], ABC):
         """
         offset = (page - 1) * page_size
         filter_kwargs = {field_name: value}
-        models = await self._model_class.objects.filter(**filter_kwargs)[
+        models = [m async for m in self._model_class.objects.filter(**filter_kwargs)[
             offset : offset + page_size
-        ].alist()
+        ]]
         return [self._converter.to_entity(model) for model in models]
 
     async def exists_by_field(self, field_name: str, value: any) -> bool:

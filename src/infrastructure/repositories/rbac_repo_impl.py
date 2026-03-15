@@ -20,9 +20,9 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
     # ========== 角色操作 ==========
 
-    def _role_to_entity(self, role_model: Role) -> RoleEntity:
+    async def _role_to_entity(self, role_model: Role) -> RoleEntity:
         """角色模型转换为实体"""
-        permissions = list(role_model.permissions.values_list("code", flat=True))
+        permissions = [p async for p in role_model.permissions.values_list("code", flat=True)]
         return RoleEntity(
             role_id=str(role_model.id),
             name=role_model.name,
@@ -51,7 +51,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
         """根据ID获取角色"""
         try:
             role = await Role.objects.aget(id=role_id)
-            return self._role_to_entity(role)
+            return await self._role_to_entity(role)
         except Role.DoesNotExist:
             return None
 
@@ -59,7 +59,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
         """根据角色代码获取角色"""
         try:
             role = await Role.objects.aget(code=code)
-            return self._role_to_entity(role)
+            return await self._role_to_entity(role)
         except Role.DoesNotExist:
             return None
 
@@ -70,7 +70,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
         # 保存权限关联
         if role.permissions:
-            perms = await Permission.objects.filter(code__in=role.permissions).alist()
+            perms = [p async for p in Permission.objects.filter(code__in=role.permissions)]
             await role_model.permissions.aset(perms)
 
         return role
@@ -82,7 +82,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
         # 更新权限关联
         if role.permissions:
-            perms = await Permission.objects.filter(code__in=role.permissions).alist()
+            perms = [p async for p in Permission.objects.filter(code__in=role.permissions)]
             await role_model.permissions.aset(perms)
 
         return role
@@ -101,8 +101,8 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
         queryset = Role.objects.all()
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active)
-        roles = await queryset.alist()
-        return [self._role_to_entity(role) for role in roles]
+        roles = [role async for role in queryset]
+        return [await self._role_to_entity(role) for role in roles]
 
     # ========== 权限操作 ==========
 
@@ -178,7 +178,7 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
             queryset = queryset.filter(is_active=is_active)
         if resource:
             queryset = queryset.filter(resource=resource)
-        perms = await queryset.alist()
+        perms = [perm async for perm in queryset]
         return [self._permission_to_entity(perm) for perm in perms]
 
     # ========== 用户角色关联 ==========
@@ -200,22 +200,21 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
     async def get_user_roles(self, user_id: str) -> list[RoleEntity]:
         """获取用户的所有角色"""
-        user_roles = await UserRole.objects.filter(user_id=user_id).select_related("role").alist()
-        return [self._role_to_entity(ur.role) for ur in user_roles]
+        user_roles = [ur async for ur in UserRole.objects.filter(user_id=user_id).select_related("role")]
+        return [await self._role_to_entity(ur.role) for ur in user_roles]
 
     async def get_user_permissions(self, user_id: str) -> list[PermissionEntity]:
         """获取用户的所有权限"""
-        user_roles = (
-            await UserRole.objects.filter(user_id=user_id)
+        user_roles = [
+            ur async for ur in UserRole.objects.filter(user_id=user_id)
             .select_related("role")
             .prefetch_related("role__permissions")
-            .alist()
-        )
+        ]
 
         all_permissions = set()
         for ur in user_roles:
             role = ur.role
-            perms = await role.permissions.filter(is_active=True).alist()
+            perms = [p async for p in role.permissions.filter(is_active=True)]
             all_permissions.update([p.code for p in perms])
 
         # 获取权限实体
@@ -229,12 +228,11 @@ class RBACRepositoryImpl(RBACRepositoryInterface):
 
     async def has_permission(self, user_id: str, permission_code: str) -> bool:
         """检查用户是否拥有指定权限"""
-        user_roles = (
-            await UserRole.objects.filter(user_id=user_id)
+        user_roles = [
+            ur async for ur in UserRole.objects.filter(user_id=user_id)
             .select_related("role")
             .prefetch_related("role__permissions")
-            .alist()
-        )
+        ]
 
         for ur in user_roles:
             role = ur.role

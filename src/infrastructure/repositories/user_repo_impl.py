@@ -32,7 +32,7 @@ class UserRepositoryImpl(UserRepositoryInterface):
             last_login=user_model.last_login,
             avatar=user_model.avatar,
             phone=user_model.phone,
-            bio=user_model.bio,
+            bio=getattr(user_model, 'bio', None),
         )
 
     def _to_model(self, entity: UserEntity) -> User:
@@ -49,7 +49,7 @@ class UserRepositoryImpl(UserRepositoryInterface):
                 user.is_superuser = entity.is_superuser
                 user.avatar = entity.avatar
                 user.phone = entity.phone
-                user.bio = entity.bio
+                # bio 字段不在 User 模型中,跳过
                 return user
             except User.DoesNotExist:
                 pass
@@ -66,7 +66,7 @@ class UserRepositoryImpl(UserRepositoryInterface):
             is_superuser=entity.is_superuser,
             avatar=entity.avatar,
             phone=entity.phone,
-            bio=entity.bio,
+            # bio 字段不在 User 模型中,跳过
         )
 
     async def get_by_id(self, user_id: str) -> UserEntity | None:

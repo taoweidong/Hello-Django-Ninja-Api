@@ -80,7 +80,7 @@ async def list_blacklist():
     获取黑名单列表
     - 获取所有黑名单IP
     """
-    entries = await IPBlacklist.objects.all().alist()
+    entries = [e async for e in IPBlacklist.objects.all()]
     return [
         IPBlacklistResponseDTO(
             blacklist_id=str(e.id),
@@ -142,7 +142,7 @@ async def list_whitelist():
     获取白名单列表
     - 获取所有白名单IP
     """
-    entries = await IPWhitelist.objects.all().alist()
+    entries = [e async for e in IPWhitelist.objects.all()]
     return [
         IPWhitelistResponseDTO(
             whitelist_id=str(e.id),
@@ -243,7 +243,7 @@ async def list_rate_limit_rules():
     获取限流规则列表
     - 获取所有限流规则
     """
-    rules = await RateLimitRule.objects.all().alist()
+    rules = [r async for r in RateLimitRule.objects.all()]
     return [
         RateLimitRuleResponseDTO(
             limit_id=str(r.id),

@@ -3,8 +3,9 @@
 User Service - 用户业务逻辑处理
 """
 
-import hashlib
 import uuid
+
+from django.contrib.auth.hashers import make_password
 
 from src.application.dto.user import UserCreateDTO, UserResponseDTO, UserUpdateDTO
 from src.infrastructure.cache.cache_manager import cache_manager
@@ -22,8 +23,8 @@ class UserService:
         self.user_repo = UserRepositoryImpl()
 
     def _hash_password(self, password: str) -> str:
-        """密码哈希"""
-        return hashlib.sha256(password.encode()).hexdigest()
+        """密码哈希 - 使用Django的密码哈希"""
+        return make_password(password)
 
     async def create_user(self, user_dto: UserCreateDTO) -> UserResponseDTO:
         """创建用户"""
@@ -35,9 +36,8 @@ class UserService:
         if await self.user_repo.exists_by_email(user_dto.email):
             raise ValueError(f"邮箱 {user_dto.email} 已存在")
 
-        # 创建用户
+        # 创建用户 - 不指定id，让数据库自动生成
         user = User(
-            id=uuid.uuid4(),
             username=user_dto.username,
             email=user_dto.email,
             password=self._hash_password(user_dto.password),
@@ -121,10 +121,11 @@ class UserService:
         if not user:
             raise ValueError("用户不存在")
 
-        if user.password != self._hash_password(old_password):
+        from django.contrib.auth.hashers import check_password
+        if not check_password(old_password, user.password):
             raise ValueError("原密码不正确")
 
-        user.password = self._hash_password(new_password)
+        user.password = make_password(new_password)
         await user.asave()
         return True
 
@@ -137,7 +138,8 @@ class UserService:
         if not user.is_active:
             raise ValueError("用户已被停用")
 
-        if user.password != self._hash_password(password):
+        from django.contrib.auth.hashers import check_password
+        if not check_password(password, user.password):
             return None
 
         # 更新最后登录时间
@@ -148,23 +150,42 @@ class UserService:
 
         return self._to_response_dto(user)
 
-    def _to_response_dto(self, user: User) -> UserResponseDTO:
-        """转换为响应DTO"""
-        return UserResponseDTO(
-            user_id=str(user.id),
-            username=user.username,
-            email=user.email,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            is_active=user.is_active,
-            is_staff=user.is_staff,
-            is_superuser=user.is_superuser,
-            avatar=user.avatar,
-            phone=user.phone,
-            bio=user.bio,
-            date_joined=user.date_joined,
-            last_login=user.last_login,
-        )
+    def _to_response_dto(self, user) -> UserResponseDTO:
+        """转换为响应DTO (支持User模型和UserEntity)"""
+        # 处理 UserEntity 对象
+        if hasattr(user, 'user_id'):
+            return UserResponseDTO(
+                user_id=user.user_id,
+                username=user.username,
+                email=user.email,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                is_active=user.is_active,
+                is_staff=user.is_staff,
+                is_superuser=user.is_superuser,
+                avatar=user.avatar,
+                phone=user.phone,
+                bio=user.bio,
+                date_joined=user.date_joined,
+                last_login=user.last_login,
+            )
+        # 处理 User 模型对象
+        else:
+            return UserResponseDTO(
+                user_id=str(user.id),
+                username=user.username,
+                email=user.email,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                is_active=user.is_active,
+                is_staff=user.is_staff,
+                is_superuser=user.is_superuser,
+                avatar=user.avatar,
+                phone=user.phone,
+                bio=getattr(user, 'bio', None),
+                date_joined=user.date_joined,
+                last_login=user.last_login,
+            )
 
 
 # 全局实例

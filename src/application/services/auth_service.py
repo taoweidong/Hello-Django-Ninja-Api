@@ -34,7 +34,10 @@ class AuthService:
         用户登录
         """
         # 验证用户凭据
-        user = await User.objects.aget(username=login_dto.username)
+        try:
+            user = await User.objects.aget(username=login_dto.username)
+        except User.DoesNotExist:
+            raise ValueError("用户名或密码错误")
 
         # 检查用户是否激活
         if not user.is_active:
@@ -45,10 +48,7 @@ class AuthService:
             raise ValueError("用户已被停用")
 
         # 验证密码
-        import hashlib
-
-        password_hash = hashlib.sha256(login_dto.password.encode()).hexdigest()
-        if user.password != password_hash:
+        if not user.check_password(login_dto.password):
             # 记录登录失败日志
             await self._create_login_log(
                 user, ip_address, user_agent, device_info, False, "密码错误"
@@ -115,9 +115,9 @@ class AuthService:
         刷新访问令牌
         """
         # 验证刷新Token
-        is_valid, payload, _ = token_validator.validate_refresh_token(refresh_dto.refresh_token)
+        is_valid, error, payload = token_validator.validate_refresh_token(refresh_dto.refresh_token)
         if not is_valid or payload is None:
-            raise ValueError("刷新Token无效或已过期")
+            raise ValueError(f"刷新Token无效或已过期: {error}")
 
         user_id = payload.get("user_id")
         username = payload.get("username")
