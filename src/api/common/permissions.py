@@ -16,13 +16,13 @@ class IsAuthenticated(BasePermission):
     验证用户是否已登录
     """
 
-    def has_permission(self, request: Any, _controller: Any) -> bool:
+    def has_permission(self, request: Any, controller: Any) -> bool:
         """
         检查用户是否已认证
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否已认证
@@ -63,13 +63,13 @@ class HasPermission(BasePermission):
         """
         self.permission_code = permission_code
 
-    def has_permission(self, request: Any, _controller: Any) -> bool:
+    def has_permission(self, request: Any, controller: Any) -> bool:
         """
         检查用户是否拥有指定权限
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否拥有权限
@@ -99,13 +99,13 @@ class HasPermission(BasePermission):
         request._required_permission = self.permission_code
         return True
 
-    async def async_has_permission(self, request: Any, _controller: Any) -> bool:
+    async def async_has_permission(self, request: Any, controller: Any) -> bool:
         """
         异步权限检查
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否拥有权限
@@ -139,13 +139,13 @@ class HasAnyPermission(BasePermission):
         """
         self.permission_codes = permission_codes
 
-    def has_permission(self, request: Any, _controller: Any) -> bool:
+    def has_permission(self, request: Any, controller: Any) -> bool:
         """
         检查用户是否拥有任一权限
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否拥有任一权限
@@ -169,13 +169,13 @@ class HasAnyPermission(BasePermission):
         request._required_permissions = self.permission_codes
         return True
 
-    async def async_has_permission(self, request: Any, _controller: Any) -> bool:
+    async def async_has_permission(self, request: Any, controller: Any) -> bool:
         """
         异步权限检查
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否拥有任一权限
@@ -200,13 +200,13 @@ class IsAdminUser(BasePermission):
     验证用户是否为管理员（拥有 admin 角色）
     """
 
-    def has_permission(self, request: Any, _controller: Any) -> bool:
+    def has_permission(self, request: Any, controller: Any) -> bool:
         """
         检查用户是否为管理员
 
         Args:
             request: HTTP 请求对象
-            _controller: 控制器对象
+            controller: 控制器对象
 
         Returns:
             bool: 是否为管理员
@@ -238,6 +238,6 @@ class AllowAny(BasePermission):
     用于公开接口
     """
 
-    def has_permission(self, _request: Any, _controller: Any) -> bool:
+    def has_permission(self, request: Any, controller: Any) -> bool:
         """允许所有请求"""
         return True
