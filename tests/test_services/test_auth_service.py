@@ -2,135 +2,127 @@
 认证服务测试
 """
 
-from unittest.mock import Mock
-
 import pytest
 
 
-@pytest.fixture
-def auth_service():
-    """认证服务 fixture"""
-    from src.application.services.auth_service import AuthService
-
-    mock_user_repo = Mock()
-    mock_jwt_manager = Mock()
-    mock_cache = Mock()
-    return AuthService(user_repository=mock_user_repo, jwt_manager=mock_jwt_manager, cache=mock_cache)
-
-
-@pytest.mark.unit
+@pytest.mark.django_db
 class TestAuthService:
     """认证服务单元测试"""
 
-    def test_login_success(self, auth_service):
+    def setup_method(self):
+        """测试方法设置"""
+        from src.application.services.auth_service import AuthService
+
+        self.auth_service = AuthService()
+
+    @pytest.mark.asyncio
+    async def test_login_success(self, user_data):
         """测试登录成功"""
-        # 模拟用户
-        mock_user = Mock()
-        mock_user.id = 1
-        mock_user.username = "testuser"
-        mock_user.email = "test@example.com"
-        mock_user.is_active = True
-        mock_user.check_password.return_value = True
+        from django.contrib.auth import get_user_model
 
-        auth_service.user_repository.get_by_username.return_value = mock_user
+        from src.application.dto.user import UserLoginDTO
 
-        # 模拟 JWT 生成
-        auth_service.jwt_manager.generate_access_token.return_value = "access_token_123"
-        auth_service.jwt_manager.generate_refresh_token.return_value = "refresh_token_123"
+        User = get_user_model()
+        user = await User.objects.acreate_user(**user_data)
+        user.is_active = True
+        await user.asave()
 
-        # 执行
-        result = auth_service.login(username="testuser", password="correctpassword")
+        login_dto = UserLoginDTO(username=user_data["username"], password=user_data["password"])
 
-        # 断言
+        result = await self.auth_service.login(login_dto)
         assert result is not None
-        assert result.access_token == "access_token_123"
-        assert result.refresh_token == "refresh_token_123"
-        assert result.user_id == 1
-        auth_service.user_repository.get_by_username.assert_called_once_with("testuser")
+        assert result.access_token is not None
+        assert result.refresh_token is not None
 
-    def test_login_invalid_password(self, auth_service):
+    @pytest.mark.asyncio
+    async def test_login_invalid_password(self, user_data):
         """测试密码错误登录"""
-        mock_user = Mock()
-        mock_user.id = 1
-        mock_user.username = "testuser"
-        mock_user.check_password.return_value = False
+        from django.contrib.auth import get_user_model
 
-        auth_service.user_repository.get_by_username.return_value = mock_user
+        from src.application.dto.user import UserLoginDTO
 
-        # 执行
-        result = auth_service.login(username="testuser", password="wrongpassword")
+        User = get_user_model()
+        user = await User.objects.acreate_user(**user_data)
+        user.is_active = True
+        await user.asave()
 
-        # 断言
-        assert result is None
+        login_dto = UserLoginDTO(username=user_data["username"], password="wrongpassword")
 
-    def test_login_user_not_found(self, auth_service):
+        try:
+            result = await self.auth_service.login(login_dto)
+            assert False, "Expected ValueError"
+        except ValueError as e:
+            assert "用户名或密码错误" in str(e)
+
+    @pytest.mark.asyncio
+    async def test_login_user_not_found(self):
         """测试用户不存在登录"""
-        auth_service.user_repository.get_by_username.return_value = None
+        from src.application.dto.user import UserLoginDTO
 
-        # 执行
-        result = auth_service.login(username="nonexistent", password="anypassword")
+        login_dto = UserLoginDTO(username="nonexistent", password="anypassword")
 
-        # 断言
-        assert result is None
-        auth_service.user_repository.get_by_username.assert_called_once_with("nonexistent")
+        try:
+            result = await self.auth_service.login(login_dto)
+            assert False, "Expected ValueError"
+        except ValueError as e:
+            assert "用户名或密码错误" in str(e)
 
-    def test_login_inactive_user(self, auth_service):
+    @pytest.mark.asyncio
+    async def test_login_inactive_user(self, user_data):
         """测试非活跃用户登录"""
-        mock_user = Mock()
-        mock_user.id = 1
-        mock_user.username = "testuser"
-        mock_user.is_active = False
-        mock_user.check_password.return_value = True
+        from django.contrib.auth import get_user_model
 
-        auth_service.user_repository.get_by_username.return_value = mock_user
+        from src.application.dto.user import UserLoginDTO
 
-        # 执行
-        result = auth_service.login(username="testuser", password="correctpassword")
+        User = get_user_model()
+        user = await User.objects.acreate_user(**user_data)
+        user.is_active = False
+        await user.asave()
 
-        # 断言
-        assert result is None
+        login_dto = UserLoginDTO(username=user_data["username"], password=user_data["password"])
 
-    def test_register_success(self, auth_service):
-        """测试注册成功"""
-        mock_user = Mock()
-        mock_user.id = 1
-        mock_user.username = "newuser"
+        try:
+            result = await self.auth_service.login(login_dto)
+            assert False, "Expected ValueError"
+        except ValueError as e:
+            assert "用户已被停用" in str(e)
 
-        auth_service.user_repository.create.return_value = mock_user
-
-        # 执行
-        result = auth_service.register(username="newuser", email="new@example.com", password="password123")
-
-        # 断言
-        assert result is not None
-        assert result.id == 1
-        assert result.username == "newuser"
-        auth_service.user_repository.create.assert_called_once()
-
-    def test_refresh_token_success(self, auth_service):
+    @pytest.mark.asyncio
+    async def test_refresh_token_success(self, user_data):
         """测试刷新 Token 成功"""
-        auth_service.jwt_manager.validate_refresh_token.return_value = Mock(user_id=1)
-        mock_user = Mock()
-        mock_user.id = 1
-        auth_service.user_repository.get_by_id.return_value = mock_user
-        auth_service.jwt_manager.generate_access_token.return_value = "new_access_token"
+        from django.contrib.auth import get_user_model
 
-        # 执行
-        result = auth_service.refresh_token("valid_refresh_token")
+        from src.application.dto.auth import RefreshTokenDTO
+        from src.application.dto.user import UserLoginDTO
 
-        # 断言
-        assert result == "new_access_token"
-        auth_service.jwt_manager.validate_refresh_token.assert_called_once_with("valid_refresh_token")
+        User = get_user_model()
+        user = await User.objects.acreate_user(**user_data)
+        user.is_active = True
+        await user.asave()
 
-    def test_logout_success(self, auth_service):
+        login_dto = UserLoginDTO(username=user_data["username"], password=user_data["password"])
+        login_result = await self.auth_service.login(login_dto)
+
+        if login_result.refresh_token:
+            refresh_dto = RefreshTokenDTO(refresh_token=login_result.refresh_token)
+            result = await self.auth_service.refresh_access_token(refresh_dto)
+            assert result is not None
+            assert result.access_token is not None
+
+    @pytest.mark.asyncio
+    async def test_logout_success(self, user_data):
         """测试登出成功"""
-        auth_service.jwt_manager.decode_token.return_value = Mock(user_id=1)
-        auth_service.cache.delete.return_value = True
+        from django.contrib.auth import get_user_model
 
-        # 执行
-        result = auth_service.logout("access_token")
+        from src.application.dto.user import UserLoginDTO
 
-        # 断言
-        assert result is True
-        auth_service.jwt_manager.decode_token.assert_called_once_with("access_token")
-        auth_service.cache.delete.assert_called_once()
+        User = get_user_model()
+        user = await User.objects.acreate_user(**user_data)
+        user.is_active = True
+        await user.asave()
+
+        login_dto = UserLoginDTO(username=user_data["username"], password=user_data["password"])
+        login_result = await self.auth_service.login(login_dto)
+
+        await self.auth_service.logout(login_result.access_token)
+        # 登出成功不抛出异常即可

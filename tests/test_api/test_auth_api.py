@@ -104,7 +104,7 @@ class TestAuthAPI:
         data = json.loads(response.content)
         assert data["message"] == "登出成功"
 
-    def test_logout_without_token(self, _user_data):
+    def test_logout_without_token(self):
         """测试无Token登出"""
         response = self.client.post(f"{self.base_url}/logout", content_type="application/json")
         assert response.status_code == 200

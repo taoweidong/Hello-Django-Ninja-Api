@@ -17,12 +17,12 @@ api.register_controllers(AuthController, UserController, RBACController, Securit
 
 
 @api.get("/health", tags=["系统"])
-def health_check(_request):
+def health_check(request):
     """健康检查"""
     return {"status": "ok", "message": "服务运行正常"}
 
 
 @api.get("/", tags=["系统"])
-def root(_request):
+def root(request):
     """API根路径"""
     return {"message": "Welcome to Hello-Django-Ninja-Api", "version": "1.0.0", "docs": "/api/docs", "redoc": "/api/redoc"}

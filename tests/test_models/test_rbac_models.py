@@ -59,7 +59,7 @@ class TestPermissionModel:
     def test_permission_str_representation(self, permission_data):
         """测试权限字符串表示"""
         permission = self.Permission.objects.create(**permission_data)
-        assert str(permission) == permission.code
+        assert str(permission) == f"{permission.name} ({permission.code})"
 
 
 class TestRolePermissionModel:

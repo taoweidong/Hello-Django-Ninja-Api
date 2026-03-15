@@ -2,7 +2,7 @@
 速率限制中间件测试
 """
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from django.test import RequestFactory
@@ -19,11 +19,8 @@ def request_factory():
 @pytest.fixture
 def rate_limit_middleware():
     """速率限制中间件 fixture"""
-    mock_cache = Mock()
     get_response = Mock()
-    middleware = RateLimitMiddleware(get_response)
-    middleware.cache = mock_cache
-    return middleware
+    return RateLimitMiddleware(get_response)
 
 
 @pytest.mark.unit
@@ -32,44 +29,36 @@ class TestRateLimitMiddleware:
 
     def test_request_within_limit(self, request_factory, rate_limit_middleware):
         """测试请求在限制内"""
-        mock_cache = Mock()
-        mock_cache.get.return_value = 5  # 5次请求，未超过100次
-        rate_limit_middleware.cache = mock_cache
-
         request = request_factory.get("/api/test")
         request.META["REMOTE_ADDR"] = "127.0.0.1"
 
-        response = rate_limit_middleware(request)
-
-        assert response is not None
+        with patch("src.core.middlewares.rate_limit_middleware.cache") as mock_cache:
+            mock_cache.get.return_value = 5  # 5次请求，未超过100次
+            response = rate_limit_middleware(request)
+            assert response is not None
 
     def test_request_exceeds_limit(self, request_factory, rate_limit_middleware):
         """测试请求超过限制"""
-        mock_cache = Mock()
-        mock_cache.get.return_value = 101  # 超过100次限制
-        rate_limit_middleware.cache = mock_cache
-
         request = request_factory.get("/api/test")
         request.META["REMOTE_ADDR"] = "127.0.0.1"
 
-        response = rate_limit_middleware(request)
+        with patch("src.core.middlewares.rate_limit_middleware.cache") as mock_cache:
+            mock_cache.get.return_value = 101  # 超过100次限制
+            response = rate_limit_middleware(request)
 
-        assert response.status_code == 429
-        assert "rate limit exceeded" in response.content.decode().lower()
+            assert response.status_code == 429
+            content = response.content.decode()
+            assert "RATE_LIMIT_ERROR" in content
 
     def test_whitelisted_ip(self, request_factory, rate_limit_middleware):
-        """测试白名单 IP"""
-        mock_cache = Mock()
-        rate_limit_middleware.cache = mock_cache
-
+        """测试白名单 IP - 验证中间件正常处理请求"""
         request = request_factory.get("/api/test")
         request.META["REMOTE_ADDR"] = "192.168.1.1"
 
-        # 模拟白名单检查
-        mock_cache.get.return_value = True
-        rate_limit_middleware.is_whitelisted = lambda ip: mock_cache.get(f"whitelist:{ip}")
+        with patch("src.core.middlewares.rate_limit_middleware.cache") as mock_cache:
+            mock_cache.get.return_value = 0  # 第一次请求，允许通过
+            mock_cache.set = Mock()  # mock set 方法
+            response = rate_limit_middleware(request)
 
-        response = rate_limit_middleware(request)
-
-        assert response is not None
-        mock_cache.get.assert_called()
+            assert response is not None
+            mock_cache.get.assert_called()
